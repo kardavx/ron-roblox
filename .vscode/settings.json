@@ -1,0 +1,25 @@
+{
+    // autoformatter
+    "editor.formatOnSave": true,
+    "luau-lsp.sourcemap.rojoProjectFile": "default.project.json",
+    "[lua]": {
+        "editor.defaultFormatter": "JohnnyMorganz.stylua"
+    },
+    "explorer.compactFolders": false,
+    // hide useless folders
+    "material-icon-theme.files.associations": {
+        "*.story.luau": "Storybook"
+    },
+    "material-icon-theme.folders.associations": {
+        "story": "Storybook",
+        "component": "Components",
+        "reflex": "Cart",
+        "ui": "Interface",
+        "tags": "Log",
+        "renderPipelines": "scripts",
+        "renderNodes": "scripts"
+    },
+    "luau-lsp.completion.imports.requireStyle": "alwaysAbsolute",
+    "luau-lsp.completion.imports.separateGroupsWithLine": true,
+    "luau-lsp.completion.imports.enabled": true,
+}

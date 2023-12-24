@@ -1,0 +1,3 @@
+return {
+    defaultAlphaValue = 10
+}
