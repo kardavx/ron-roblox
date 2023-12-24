@@ -220,6 +220,7 @@ function Weapon:BindInput()
 		end
 
 		self.lowReady = not self.lowReady
+		SignalBag:Fire("LowReady", self.lowReady)
 		if self.lowReady then
 			playAnimation(self.animations.LowReady, 0.25)
 		else

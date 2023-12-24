@@ -2,6 +2,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local input = require(ReplicatedStorage.Shared.classes.input)
 local movementConfig = require(ReplicatedStorage.Shared.configurations.movementConfig)
+local SignalBag = require(ReplicatedStorage.Shared.module.SignalBag)
 local OOPTypes = require(ReplicatedStorage.Shared.types.OOPTypes)
 local getMoveDirectionInObjectSpace = require(ReplicatedStorage.Shared.util.getMoveDirectionInObjectSpace)
 local lerpNumber = require(ReplicatedStorage.Shared.util.lerpNumber)
@@ -70,8 +71,13 @@ function Movement:BindInput()
 		self.slowWalk = holding
 	end)
 
+	local lowReadyConnection = SignalBag:Connect("LowReady", function(lowReadyState: boolean)
+		self.lowReady = lowReadyState
+	end)
+
 	self.inputJanitor:GiveTask(function()
 		slowWalkConnection:Destroy()
+		lowReadyConnection:Destroy()
 	end)
 end
 

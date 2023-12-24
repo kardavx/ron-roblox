@@ -78,7 +78,7 @@ function Client.new()
 		camera = self.camera,
 	})
 
-	Gloves:SetCurrentGloves("bulky")
+	-- Gloves:SetCurrentGloves("bulky")
 	Watch:SetCurrentWatch("silver")
 
 	self.weaponsJanitor = Maid.new()
