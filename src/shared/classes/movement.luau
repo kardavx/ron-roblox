@@ -36,7 +36,7 @@ export type Object = typeof(setmetatable(
 		accelerationMultiplier: number,
 		turnDecelerationMultiplier: number,
 		desiredSpeed: number,
-
+		lastMoveDirection: Vector3,
 		lastPositiveInput: Vector3,
 	},
 	{} :: Class

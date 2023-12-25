@@ -17,19 +17,26 @@ function Obstruction.new(): RenderPipelineTypes.NodeObject
 	self.obstructionAmount = 0
 	self.params = RaycastParams.new()
 	self.params.FilterType = Enum.RaycastFilterType.Exclude
+	self.obstructionOffsetMultiplier = -1
 
 	return self
 end
 
 function Obstruction:PreUpdate(deltaTime: number, viewmodel: WeaponTypes.Viewmodel)
-	local origin = self.camera.rawCameraCFrame.Position
+	local obstructionOffset = self.camera.rawCameraCFrame.LookVector * self.obstructionOffsetMultiplier
+
+	local origin = self.camera.rawCameraCFrame.Position + obstructionOffset
 	local target = viewmodel.weapon.Muzzle.CFrame.Position
 	local direction = target - origin
 
 	self.params.FilterDescendantsInstances = { LocalPlayer.Character, CurrentCamera }
 
-	local raycastResult =
-		workspace:Blockcast(self.camera.rawCameraCFrame, Vector3.new(1, 1, 0.1), direction, self.params)
+	local raycastResult = workspace:Blockcast(
+		self.camera.rawCameraCFrame + obstructionOffset,
+		Vector3.new(1, 1, 0.1),
+		direction,
+		self.params
+	)
 
 	if raycastResult and (origin - target).Magnitude - raycastResult.Distance >= self.obstructionAmount - 0.5 then
 		self.obstructionAmount =

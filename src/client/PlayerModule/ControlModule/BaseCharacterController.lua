@@ -5,9 +5,10 @@
 	2018 PlayerScripts Update - AllYourBlox
 --]]
 
-local ZERO_VECTOR3: Vector3 = Vector3.new(0,0,0)
+local ZERO_VECTOR3: Vector3 = Vector3.new(0, 0, 0)
 
---[[ The Module ]]--
+--[[ The Module ]]
+--
 local BaseCharacterController = {}
 BaseCharacterController.__index = BaseCharacterController
 
