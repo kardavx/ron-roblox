@@ -5,7 +5,7 @@ local camera = require(ReplicatedStorage.Shared.classes.camera.camera)
 local freelook = require(ReplicatedStorage.Shared.classes.freelook)
 local input = require(ReplicatedStorage.Shared.classes.input)
 local movement = require(ReplicatedStorage.Shared.classes.movement)
-local weapon = require(ReplicatedStorage.Shared.classes.weapon)
+local weaponClient = require(ReplicatedStorage.Shared.classes.weaponClient)
 local SigSauerConfig = require(ReplicatedStorage.Shared.configurations.weapons.SigSauerConfig)
 local BodyVisibility = require(ReplicatedStorage.Shared.module.BodyVisibility)
 local ClassBag = require(ReplicatedStorage.Shared.module.ClassBag)
@@ -15,7 +15,7 @@ local Interace = require(ReplicatedStorage.Shared.module.Interace)
 local Projectors = require(ReplicatedStorage.Shared.module.Projectors)
 local SignalBag = require(ReplicatedStorage.Shared.module.SignalBag)
 local Watch = require(ReplicatedStorage.Shared.module.Watch)
-local OOPTypes = require(ReplicatedStorage.Shared.types.OOPTypes)
+local GameTypes = require(ReplicatedStorage.Shared.types.GameTypes)
 local chooseRandomFromArray = require(ReplicatedStorage.Shared.util.chooseRandomFromArray)
 local Maid = require(ReplicatedStorage.package.Maid)
 
@@ -26,13 +26,13 @@ export type Class = {
 	__index: Class,
 	new: () -> Object,
 	ApplyLoadout: (self: Object) -> (),
-} & OOPTypes.ClientClassMethods<Object>
+} & GameTypes.ClientMethods<Object>
 
 export type Object = typeof(setmetatable(
 	{} :: {
 		currentWeapon: "Secondary"?,
 		weapons: {
-			Secondary: weapon.Object,
+			Secondary: weaponClient.Object,
 		}?,
 		movement: movement.Object?,
 		freelook: freelook.Object,
@@ -126,7 +126,7 @@ function Client:ApplyLoadout(forced: boolean?)
 
 	self.weaponsJanitor:DoCleaning()
 	self.weapons = {
-		Secondary = weapon.new(SigSauerConfig),
+		Secondary = weaponClient.new(SigSauerConfig),
 	}
 
 	for _, singleWeapon in self.weapons do

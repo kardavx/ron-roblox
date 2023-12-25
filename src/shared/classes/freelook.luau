@@ -7,14 +7,14 @@ local cameraModifier = require(ReplicatedStorage.Shared.classes.camera.cameraMod
 local input = require(ReplicatedStorage.Shared.classes.input)
 local freelookConfig = require(ReplicatedStorage.Shared.configurations.freelookConfig)
 local ClassBag = require(ReplicatedStorage.Shared.module.ClassBag)
-local OOPTypes = require(ReplicatedStorage.Shared.types.OOPTypes)
+local GameTypes = require(ReplicatedStorage.Shared.types.GameTypes)
 local Maid = require(ReplicatedStorage.package.Maid)
 
 export type Class = {
 	__index: Class,
 	new: () -> Object,
 	BindInput: (self: Object) -> (),
-} & OOPTypes.ClientClassMethods<Object>
+} & GameTypes.ClientMethods<Object>
 
 export type Object = typeof(setmetatable(
 	{} :: {

@@ -7,22 +7,27 @@ local Reflex = require(ReplicatedStorage.package.Reflex)
 export type Producer = Reflex.Producer<State, Actions>
 
 export type State = {
-	money: number,
+	leanFactor: number,
 }
 
 type Actions = {
-	increment: () -> (),
+	setLeanFactor: (newLeanFactor: number) -> (),
 }
 
 local DEFAULT_STATE: State = {
-	money = 25,
+	leanFactor = 0,
 }
 
 function CreateProducer(initialState: State): Producer
 	local producer = Reflex.createProducer(initialState, {
-		increment = function(oldState: State): State
+		setLeanFactor = function(oldState: State, newLeanFactor: number): State
+			if newLeanFactor < -1 or newLeanFactor > 1 then
+				warn(`Incorrect lean factor specified!`)
+				return oldState
+			end
+
 			local state = table.clone(oldState)
-			state.money += 1
+			state.leanFactor = newLeanFactor
 
 			return state
 		end,

@@ -4,7 +4,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CurrentCamera = require(ReplicatedStorage.Shared.CurrentCamera)
 local camera = require(ReplicatedStorage.Shared.classes.camera.camera)
 local ClassBag = require(ReplicatedStorage.Shared.module.ClassBag)
-local OOPTypes = require(ReplicatedStorage.Shared.types.OOPTypes)
+local GameTypes = require(ReplicatedStorage.Shared.types.GameTypes)
 local forEach = require(ReplicatedStorage.Shared.util.forEach)
 
 type Projector = BasePart & {
@@ -16,7 +16,7 @@ type Projector = BasePart & {
 	},
 }
 
-type LocalProperties = {} & OOPTypes.ClientClassMethods<LocalProperties>
+type LocalProperties = {} & GameTypes.ClientMethods<LocalProperties>
 
 local Projectors: LocalProperties = {} :: LocalProperties
 

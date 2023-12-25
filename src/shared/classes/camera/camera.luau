@@ -6,7 +6,7 @@ local CurrentCamera = require(ReplicatedStorage.Shared.CurrentCamera)
 local cameraModifier = require(ReplicatedStorage.Shared.classes.camera.cameraModifier)
 local fovModifier = require(ReplicatedStorage.Shared.classes.camera.fovModifier)
 local cameraConfig = require(ReplicatedStorage.Shared.configurations.cameraConfig)
-local OOPTypes = require(ReplicatedStorage.Shared.types.OOPTypes)
+local GameTypes = require(ReplicatedStorage.Shared.types.GameTypes)
 
 export type Class = {
 	__index: Class,
@@ -15,7 +15,7 @@ export type Class = {
 	Shove: (self: Object, shoveAmount: Vector2) -> (),
 	SetLocked: (self: Object, locked: boolean) -> (),
 	UpdateRotationDelta: (self: Object) -> (),
-} & OOPTypes.ClientClassMethods<Object>
+} & GameTypes.ClientMethods<Object>
 
 export type Object = typeof(setmetatable(
 	{} :: {

@@ -15,7 +15,7 @@ local obstruction = require(ReplicatedStorage.Shared.renderPipelines.renderNodes
 local sway = require(ReplicatedStorage.Shared.renderPipelines.renderNodes.sway)
 local tilt = require(ReplicatedStorage.Shared.renderPipelines.renderNodes.tilt)
 local renderPipeline = require(ReplicatedStorage.Shared.renderPipelines.renderPipeline)
-local OOPTypes = require(ReplicatedStorage.Shared.types.OOPTypes)
+local GameTypes = require(ReplicatedStorage.Shared.types.GameTypes)
 local WeaponConfigTypes = require(ReplicatedStorage.Shared.types.WeaponConfigTypes)
 local WeaponTypes = require(ReplicatedStorage.Shared.types.WeaponTypes)
 local anyAnimationPlaying = require(ReplicatedStorage.Shared.util.animations.anyAnimationPlaying)
@@ -43,7 +43,7 @@ export type Class = {
 	UpdateLowReady: (self: Object) -> (),
 	AddLowReadyEnabler: (self: Object, enablerId: string) -> (),
 	RemoveLowReadyEnabler: (self: Object, enablerId: string) -> (),
-} & OOPTypes.ClientClassMethods<Object>
+} & GameTypes.ClientMethods<Object>
 
 type RespectTable = { "Equip" | "Equipping" | "Reloading" | "LowReady" }
 
@@ -190,9 +190,9 @@ function Weapon:UpdateLowReady()
 	SignalBag:Fire("LowReady", self.lowReady)
 
 	if self.lowReady then
-		playAnimation(self.animations.LowReady, 0.1)
+		playAnimation(self.animations.LowReady, 0.3)
 	else
-		stopAnimation(self.animations.LowReady, 0.1)
+		stopAnimation(self.animations.LowReady, 0.3)
 	end
 end
 
