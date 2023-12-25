@@ -1,5 +1,7 @@
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 
 local CurrentCamera = require(ReplicatedStorage.Shared.CurrentCamera)
 local camera = require(ReplicatedStorage.Shared.classes.camera.camera)
@@ -20,7 +22,9 @@ type LocalProperties = {} & OOPTypes.ClientClassMethods<LocalProperties>
 
 local Projectors: LocalProperties = {} :: LocalProperties
 
-function Projectors:Update(deltaTime: number)
+local scopeTarget = workspace:WaitForChild("ScopeTarget")
+
+RunService:BindToRenderStep("ProjectorsUpdate", Enum.RenderPriority.Camera.Value + 1, function(deltaTime: number)
 	local playerCamera = ClassBag:GetClass("camera", true) :: camera.Object
 
 	forEach(CollectionService:GetTagged("projector"), function(projector: Projector)
@@ -35,7 +39,6 @@ function Projectors:Update(deltaTime: number)
 
 			if reticle:GetAttribute("Scalable") == true then
 				local size = math.clamp(CurrentCamera.FieldOfView / playerCamera.baseFov, 0, 1)
-				print(size)
 				local originalSize = reticle:GetAttribute("originalSize")
 				reticle.Size = reticle.Size:Lerp(
 					UDim2.fromOffset(originalSize.X.Offset * size, originalSize.Y.Offset * size),
@@ -43,11 +46,13 @@ function Projectors:Update(deltaTime: number)
 				)
 			end
 
-			local distScale = projector.CFrame:PointToObjectSpace(CurrentCamera.CFrame.Position) / projector.Size / 4
-			reticle.Position =
-				reticle.Position:Lerp(UDim2.fromScale(0.5 - distScale.X / 2, 0.5 - distScale.Y), 10 * deltaTime)
+			local distScale = projector.CFrame:PointToObjectSpace(CurrentCamera.CFrame.Position) / projector.Size
+
+			reticle.Position = UDim2.fromScale(0.5 + distScale.X, 0.5 - distScale.Y)
 		end)
 	end)
-end
+end)
+
+function Projectors:Update(deltaTime: number) end
 
 return Projectors
