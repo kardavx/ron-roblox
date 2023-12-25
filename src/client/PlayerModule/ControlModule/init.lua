@@ -479,7 +479,13 @@ function ControlModule:calculateRawMoveVector(humanoid: Humanoid, cameraRelative
 end
 
 function ControlModule:OnRenderStepped(dt)
-	if self.activeController and self.activeController.enabled and self.humanoid then
+	if
+		self.activeController
+		and self.activeController.enabled
+		and self.humanoid
+		and self.character
+		and self.character.PrimaryPart
+	then
 		-- Give the controller a chance to adjust its state
 		self.activeController:OnRenderStepped(dt)
 
