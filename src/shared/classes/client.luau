@@ -11,6 +11,7 @@ local BodyVisibility = require(ReplicatedStorage.Shared.module.BodyVisibility)
 local ClassBag = require(ReplicatedStorage.Shared.module.ClassBag)
 local ClientTags = require(ReplicatedStorage.Shared.module.ClientTags)
 local Gloves = require(ReplicatedStorage.Shared.module.Gloves)
+local HumanoidStateAdjuster = require(ReplicatedStorage.Shared.module.HumanoidStateAdjuster)
 local SignalBag = require(ReplicatedStorage.Shared.module.SignalBag)
 local Watch = require(ReplicatedStorage.Shared.module.Watch)
 local OOPTypes = require(ReplicatedStorage.Shared.types.OOPTypes)
@@ -154,6 +155,7 @@ function Client:UpdateCharacter(character)
 
 	if character then
 		self.movement = movement.new(character, 4)
+		HumanoidStateAdjuster:AdjustStates(character.Humanoid)
 	end
 
 	if character then
