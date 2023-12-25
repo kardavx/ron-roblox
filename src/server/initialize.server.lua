@@ -1,1 +1,3 @@
-print("Hello world, from server!")
+local ServerScriptService = game:GetService("ServerScriptService")
+
+require(ServerScriptService.NPCTest)
