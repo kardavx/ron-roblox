@@ -14,7 +14,7 @@ local lerpNumber = require(ReplicatedStorage.Shared.util.lerpNumber)
 local Obstruction: RenderPipelineTypes.NodeClass = {} :: RenderPipelineTypes.NodeClass
 Obstruction.__index = Obstruction
 
-local maxPullback = 0.6
+local maxPullback = 0.5
 
 function Obstruction.new(): RenderPipelineTypes.NodeObject
 	local self = setmetatable({}, Obstruction)
@@ -39,32 +39,27 @@ function Obstruction:PreUpdate(
 	local origin = self.camera.rawCameraCFrame.Position + obstructionOffset
 	local target = (viewmodel.weapon.Muzzle.CFrame * viewmodel.HumanoidRootPart.Handle.Transform:Inverse()).Position
 	local direction = target - origin
-
 	self.params.FilterDescendantsInstances = { LocalPlayer.Character, CurrentCamera }
+
+	local maxDistance = math.round((origin - target).Magnitude)
 
 	local raycastResult = workspace:Blockcast(
 		self.camera.rawCameraCFrame + obstructionOffset,
 		Vector3.new(1, 1, 0.1),
-		direction,
+		self.camera.rawCameraCFrame.LookVector * maxDistance,
 		self.params
 	)
 
-	if
-		raycastResult
-		and (origin - target).Magnitude - raycastResult.Distance >= self.desiredObstructionAmount - 0.5
-	then
-		self.desiredObstructionAmount = lerpNumber(
-			self.desiredObstructionAmount,
-			(origin - target).Magnitude - raycastResult.Distance,
-			12 * deltaTime
-		)
+	if raycastResult and maxDistance - raycastResult.Distance >= self.desiredObstructionAmount - 0.5 then
+		self.desiredObstructionAmount =
+			lerpNumber(self.desiredObstructionAmount, maxDistance - raycastResult.Distance, 12 * deltaTime)
 	else
 		self.desiredObstructionAmount = lerpNumber(self.desiredObstructionAmount, 0, 8 * deltaTime)
 	end
 
 	self.actualObstructionAmount = math.min(self.desiredObstructionAmount, maxPullback)
 
-	if self.actualObstructionAmount >= maxPullback - 0.05 then
+	if self.actualObstructionAmount >= maxPullback then
 		SignalBag:Fire("EnableLowReadyExternally", "obstruction")
 	else
 		SignalBag:Fire("DisableLowReadyExternally", "obstruction")
