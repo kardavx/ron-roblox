@@ -11,6 +11,7 @@ local Bobbing: RenderPipelineTypes.NodeClass = {} :: RenderPipelineTypes.NodeCla
 Bobbing.__index = Bobbing
 
 local walkspeedDivider = 1.7
+local bobbingMultiplier = 50
 
 function Bobbing.new(): RenderPipelineTypes.NodeObject
 	local self = setmetatable({}, Bobbing)
@@ -36,7 +37,7 @@ function Bobbing:PreUpdate(deltaTime: number)
 	self.sines.y:SetFrequency(2 * LocalPlayer.Character.Humanoid.WalkSpeed / walkspeedDivider)
 	self.sines.z:SetFrequency(2 * LocalPlayer.Character.Humanoid.WalkSpeed / walkspeedDivider)
 
-	self.spring:Impulse(movementSway * primaryPart.AssemblyLinearVelocity.Magnitude)
+	self.spring:Impulse(movementSway * primaryPart.AssemblyLinearVelocity.Magnitude * deltaTime * bobbingMultiplier)
 end
 
 function Bobbing:Update(deltaTime: number, currentCFrame: CFrame, viewmodel: WeaponTypes.Viewmodel): CFrame
