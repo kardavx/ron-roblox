@@ -1,4 +1,5 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 
 local camera = require(ReplicatedStorage.Shared.classes.camera.camera)
 local cameraModifier = require(ReplicatedStorage.Shared.classes.camera.cameraModifier)
@@ -10,6 +11,7 @@ local loadAnimations = require(ReplicatedStorage.Shared.functions.weapon.loadAni
 local ClassBag = require(ReplicatedStorage.Shared.module.ClassBag)
 local SignalBag = require(ReplicatedStorage.Shared.module.SignalBag)
 local bobbing = require(ReplicatedStorage.Shared.renderPipelines.renderNodes.bobbing)
+local lean = require(ReplicatedStorage.Shared.renderPipelines.renderNodes.lean)
 local move = require(ReplicatedStorage.Shared.renderPipelines.renderNodes.move)
 local obstruction = require(ReplicatedStorage.Shared.renderPipelines.renderNodes.obstruction)
 local sway = require(ReplicatedStorage.Shared.renderPipelines.renderNodes.sway)
@@ -95,6 +97,7 @@ function Weapon.new(config: WeaponConfigTypes.Config)
 	end
 
 	self.renderPipeline = renderPipeline.new({
+		lean,
 		tilt,
 		obstruction,
 		bobbing,

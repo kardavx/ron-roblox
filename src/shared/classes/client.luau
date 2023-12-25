@@ -9,6 +9,7 @@ local weaponClient = require(ReplicatedStorage.Shared.classes.weaponClient)
 local SigSauerConfig = require(ReplicatedStorage.Shared.configurations.weapons.SigSauerConfig)
 local BodyVisibility = require(ReplicatedStorage.Shared.module.BodyVisibility)
 local ClassBag = require(ReplicatedStorage.Shared.module.ClassBag)
+local ClientPlayerData = require(ReplicatedStorage.Shared.module.ClientPlayerData)
 local ClientTags = require(ReplicatedStorage.Shared.module.ClientTags)
 local Gloves = require(ReplicatedStorage.Shared.module.Gloves)
 local Interace = require(ReplicatedStorage.Shared.module.Interace)
@@ -78,6 +79,14 @@ function Client.new()
 			keyCode = Enum.UserInputType.MouseButton3,
 			inputType = "Hold",
 		},
+		LeanLeft = {
+			keyCode = Enum.KeyCode.Q,
+			inputType = "Hold",
+		},
+		LeanRight = {
+			keyCode = Enum.KeyCode.E,
+			inputType = "Hold",
+		},
 	})
 
 	ClassBag:ReplaceBag({
@@ -98,6 +107,22 @@ function Client.new()
 			self.currentWeapon = "Secondary"
 			self.weapons[self.currentWeapon]:Equip()
 		end
+	end)
+
+	input.SubscribeToInput("LeanLeft", function(holding: boolean)
+		if ClientPlayerData.serverProfile:getState().leanFactor == -1 then
+			return
+		end
+
+		ClientPlayerData.serverProfile.setLeanFactor(holding and 1 or 0)
+	end)
+
+	input.SubscribeToInput("LeanRight", function(holding: boolean)
+		if ClientPlayerData.serverProfile:getState().leanFactor == 1 then
+			return
+		end
+
+		ClientPlayerData.serverProfile.setLeanFactor(holding and -1 or 0)
 	end)
 
 	ClientTags:Start()

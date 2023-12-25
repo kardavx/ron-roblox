@@ -6,6 +6,9 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local Maid = require(ReplicatedStorage.package.Maid)
 local playerClass = require(ServerScriptService.classes.player)
 
+---// inicjalizuje serverDate, nie pytaj czemu w taki sposob - shibe to wymyslil XD
+require(ServerScriptService.module.ServerPlayerData)
+
 local playerObjects: { [string]: playerClass.Object } = {}
 local playerJanitors: { [string]: Maid.Maid } = {}
 local characterJanitors: { [string]: Maid.Maid } = {}

@@ -17,7 +17,7 @@ type Profile = {
 	Release: (self: Profile) -> (),
 }
 
-type ServerPlayerProfile = {
+export type ServerPlayerProfile = {
 	player: Player,
 	profileStore: Profile,
 	producer: serverProfile.Producer,
@@ -29,7 +29,7 @@ type LocalProperties = {
 	WaitForPlayerProfile: (player: Player) -> Promise.TypedPromise<ServerPlayerProfile>,
 }
 
-local ServerPlayerData = {} :: LocalProperties
+local ServerPlayerData: LocalProperties = {} :: LocalProperties
 
 local ProfileStore = ProfileService.GetProfileStore(serverDatastoreKeys.storeKey, serverProfile.DEFAULT_STATE)
 

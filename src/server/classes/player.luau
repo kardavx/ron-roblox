@@ -1,5 +1,8 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 
+local lean = require(ServerScriptService.classes.lean)
+local ServerPlayerData = require(ServerScriptService.module.ServerPlayerData)
 local GameTypes = require(ReplicatedStorage.Shared.types.GameTypes)
 local Maid = require(ReplicatedStorage.package.Maid)
 
@@ -14,7 +17,9 @@ export type Class = {
 
 export type Object = typeof(setmetatable(
 	{} :: {
+		Data: ServerPlayerData.ServerPlayerProfile,
 		janitor: Maid.Maid,
+		lean: lean.Object,
 		player: Player,
 	},
 	{} :: Class
@@ -23,16 +28,34 @@ export type Object = typeof(setmetatable(
 local PlayerClass: Class = {} :: Class
 PlayerClass.__index = PlayerClass
 
+local function waitForPlayerData(player: Player): ServerPlayerData.ServerPlayerProfile
+	local resolved, data = ServerPlayerData.WaitForPlayerProfile(player):await()
+
+	if not resolved then
+		error(`Failed to resolve player data!`)
+	end
+
+	return data
+end
+
 function PlayerClass.new(player: Player)
 	local self = setmetatable({}, PlayerClass)
 
+	self.data = waitForPlayerData(player)
 	self.janitor = Maid.new()
 	self.player = player
+	self.lean = lean.new(self.player, self.data)
 
 	return self
 end
 
-function PlayerClass:Update(deltaTime: number) end
+function PlayerClass:OnCharacterDied() end
+
+function PlayerClass:UpdateCharacter(character: Model?) end
+
+function PlayerClass:Update(deltaTime: number)
+	self.lean:Update(deltaTime)
+end
 
 function PlayerClass:Destroy()
 	self.janitor:Destroy()
