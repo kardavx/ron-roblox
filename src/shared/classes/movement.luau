@@ -34,6 +34,7 @@ export type Object = typeof(setmetatable(
 		},
 
 		accelerationMultiplier: number,
+		turnDecelerationMultiplier: number,
 		desiredSpeed: number,
 
 		lastPositiveInput: Vector3,
@@ -49,12 +50,14 @@ function Movement.new(character: Character, accelerationMultiplier: number)
 
 	self.slowWalk = false
 	self.lowReady = false
+	self.lastMoveDirection = Vector3.zero
 
 	self.inputJanitor = Maid.new()
 
 	self.character = character
 
 	self.accelerationMultiplier = accelerationMultiplier or movementConfig.defaultAccelerationMultiplier
+	self.turnDecelerationMultiplier = movementConfig.turnDecelerationMultiplier
 	self.desiredSpeed = 0
 
 	self.lastPositiveInput = Vector3.zero
@@ -106,8 +109,29 @@ function Movement:Update(deltaTime: number)
 
 	self:UpdateSpeed()
 
+	local angle = math.deg(math.acos(self.lastMoveDirection:Dot(moveDirection)))
+	if angle ~= angle then
+		angle = 0
+	end
+	self.lastMoveDirection = moveDirection
+
+	--[[
+		1 Wersja
+		self.character.Humanoid.WalkSpeed = lerpNumber(
+		self.character.Humanoid.WalkSpeed,
+		self.desiredSpeed - angle * (self.desiredSpeed * self.turnDecelerationMultiplier),
+		self.accelerationMultiplier * deltaTime)
+	]]
+
 	self.character.Humanoid.WalkSpeed =
 		lerpNumber(self.character.Humanoid.WalkSpeed, self.desiredSpeed, self.accelerationMultiplier * deltaTime)
+
+	self.character.Humanoid.WalkSpeed = lerpNumber(
+		self.character.Humanoid.WalkSpeed,
+		self.character.Humanoid.WalkSpeed - angle * self.desiredSpeed,
+		self.turnDecelerationMultiplier * deltaTime
+	)
+
 	if math.abs(self.desiredSpeed - self.character.Humanoid.WalkSpeed) < 0.01 then
 		self.character.Humanoid.WalkSpeed = self.desiredSpeed
 	end
