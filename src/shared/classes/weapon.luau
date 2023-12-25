@@ -40,6 +40,9 @@ export type Class = {
 	Shoot: (self: Object) -> boolean,
 	UpdateSlide: (self: Object, forcePosition: boolean?) -> (),
 	UpdateNextShootTick: (self: Object) -> (),
+	UpdateLowReady: (self: Object) -> (),
+	AddLowReadyEnabler: (self: Object, enablerId: string) -> (),
+	RemoveLowReadyEnabler: (self: Object, enablerId: string) -> (),
 } & OOPTypes.ClientClassMethods<Object>
 
 type RespectTable = { "Equip" | "Equipping" | "Reloading" | "LowReady" }
@@ -47,6 +50,7 @@ type RespectTable = { "Equip" | "Equipping" | "Reloading" | "LowReady" }
 export type Object = typeof(setmetatable(
 	{} :: {
 		lowReady: boolean,
+		lowReadyEnablers: { string },
 		equipping: boolean,
 		equipped: boolean,
 		reloading: boolean,
@@ -100,6 +104,7 @@ function Weapon.new(config: WeaponConfigTypes.Config)
 
 	--// what the fuck is this state managment
 	self.lowReady = false
+	self.lowReadyEnablers = {}
 	self.equipping = false
 	self.equipped = false
 	self.reloading = false
@@ -180,6 +185,36 @@ function Weapon:CanDoAction(respect: RespectTable | "All")
 	return true
 end
 
+function Weapon:UpdateLowReady()
+	self.lowReady = #self.lowReadyEnablers > 0
+	SignalBag:Fire("LowReady", self.lowReady)
+
+	if self.lowReady then
+		playAnimation(self.animations.LowReady, 0.1)
+	else
+		stopAnimation(self.animations.LowReady, 0.1)
+	end
+end
+
+function Weapon:AddLowReadyEnabler(enablerId: string)
+	if table.find(self.lowReadyEnablers, enablerId) then
+		return
+	end
+
+	table.insert(self.lowReadyEnablers, enablerId)
+	self:UpdateLowReady()
+end
+
+function Weapon:RemoveLowReadyEnabler(enablerId: string)
+	local foundEnabler = table.find(self.lowReadyEnablers, enablerId)
+	if not foundEnabler then
+		return
+	end
+
+	table.remove(self.lowReadyEnablers, foundEnabler)
+	self:UpdateLowReady()
+end
+
 function Weapon:BindInput()
 	local reloadConnection = input.SubscribeToInput("Reload", function()
 		if not self:CanDoAction("All") then
@@ -219,13 +254,19 @@ function Weapon:BindInput()
 			return
 		end
 
-		self.lowReady = not self.lowReady
-		SignalBag:Fire("LowReady", self.lowReady)
-		if self.lowReady then
-			playAnimation(self.animations.LowReady, 0.25)
+		if table.find(self.lowReadyEnablers, "weapon") then
+			self:RemoveLowReadyEnabler("weapon")
 		else
-			stopAnimation(self.animations.LowReady, 0.25)
+			self:AddLowReadyEnabler("weapon")
 		end
+	end)
+
+	local addExternalLowReadyConnection = SignalBag:Connect("EnableLowReadyExternally", function(enablerId: string)
+		self:AddLowReadyEnabler(enablerId)
+	end)
+
+	local removeExternalLowReadyConnection = SignalBag:Connect("DisableLowReadyExternally", function(enablerId: string)
+		self:RemoveLowReadyEnabler(enablerId)
 	end)
 
 	SignalBag:Connect("Use", function()
@@ -241,6 +282,8 @@ function Weapon:BindInput()
 		shootConnection:Destroy()
 		aimConnection:Destroy()
 		lowReadyConnection:Destroy()
+		addExternalLowReadyConnection:Destroy()
+		removeExternalLowReadyConnection:Destroy()
 	end)
 end
 
