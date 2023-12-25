@@ -3,8 +3,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local glovesDirectory = ReplicatedStorage.Gloves :: Folder
 
 type LocalProperties = {
-	currentGloves: string,
-	SetCurrentGloves: (self: LocalProperties, glovesName: string) -> (),
+	currentGloves: string?,
+	SetCurrentGloves: (self: LocalProperties, glovesName: string?) -> (),
 	ApplyToViewmodel: (self: LocalProperties, viewmodel: Model) -> (),
 	CleanupOldGloves: (self: LocalProperties, viewmodelOrCharacter: Model) -> (),
 	ApplyToCharacter: (self: LocalProperties, character: Model) -> (),
@@ -79,8 +79,8 @@ local function getGlovesFolder(folderFor: "Viewmodel" | "Character", glovesName:
 	return scope
 end
 
-function Gloves:SetCurrentGloves(glovesName: string)
-	if not glovesDirectory:FindFirstChild(glovesName) then
+function Gloves:SetCurrentGloves(glovesName: string | nil)
+	if glovesName ~= nil and not glovesDirectory:FindFirstChild(glovesName) then
 		error(`Given gloves have no storage specified!`)
 	end
 

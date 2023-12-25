@@ -11,10 +11,15 @@ local BodyVisibility = require(ReplicatedStorage.Shared.module.BodyVisibility)
 local ClassBag = require(ReplicatedStorage.Shared.module.ClassBag)
 local ClientTags = require(ReplicatedStorage.Shared.module.ClientTags)
 local Gloves = require(ReplicatedStorage.Shared.module.Gloves)
+local Projectors = require(ReplicatedStorage.Shared.module.Projectors)
 local SignalBag = require(ReplicatedStorage.Shared.module.SignalBag)
 local Watch = require(ReplicatedStorage.Shared.module.Watch)
 local OOPTypes = require(ReplicatedStorage.Shared.types.OOPTypes)
+local chooseRandomFromArray = require(ReplicatedStorage.Shared.util.chooseRandomFromArray)
 local Maid = require(ReplicatedStorage.package.Maid)
+
+local possibleGloves = { "bulky", "None" }
+local possibleWatches = { "silver", "None" }
 
 export type Class = {
 	__index: Class,
@@ -69,7 +74,7 @@ function Client.new()
 			inputType = "Hold",
 		},
 		Freelook = {
-			keyCode = Enum.KeyCode.LeftAlt,
+			keyCode = Enum.UserInputType.MouseButton3,
 			inputType = "Hold",
 		},
 	})
@@ -77,9 +82,6 @@ function Client.new()
 	ClassBag:ReplaceBag({
 		camera = self.camera,
 	})
-
-	-- Gloves:SetCurrentGloves("bulky")
-	Watch:SetCurrentWatch("silver")
 
 	self.weaponsJanitor = Maid.new()
 	self.freelook = freelook.new()
@@ -99,12 +101,9 @@ function Client.new()
 
 	ClientTags:Start()
 
-	workspace:WaitForChild("loadout").ProximityPrompt.Triggered:Connect(function()
+	SignalBag:Connect("ApplyLoadout", function()
+		print("got signal")
 		self:ApplyLoadout()
-	end)
-
-	workspace:WaitForChild("useTest").ProximityPrompt.Triggered:Connect(function()
-		SignalBag:Fire("Use")
 	end)
 
 	return self
@@ -153,10 +152,19 @@ function Client:UpdateCharacter(character)
 	end
 
 	if character then
-		self.movement = movement.new(character, 4)
-	end
+		local choosenGloves = chooseRandomFromArray(possibleGloves)
+		if choosenGloves == "None" then
+			choosenGloves = nil
+		end
 
-	if character then
+		local choosenWatch = chooseRandomFromArray(possibleWatches)
+		if choosenWatch == "None" then
+			choosenWatch = nil
+		end
+
+		Gloves:SetCurrentGloves(choosenGloves)
+		Watch:SetCurrentWatch(choosenWatch)
+		self.movement = movement.new(character, 4)
 		self:ApplyLoadout(true)
 	else
 		self.weaponsJanitor:DoCleaning()
@@ -167,6 +175,7 @@ function Client:Update(deltaTime: number)
 	self.camera:Update(deltaTime)
 	self.freelook:Update(deltaTime)
 	BodyVisibility:Update(deltaTime)
+	Projectors:Update(deltaTime)
 
 	if self.movement then
 		self.movement:Update(deltaTime)
