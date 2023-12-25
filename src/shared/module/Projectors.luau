@@ -1,7 +1,5 @@
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
 
 local CurrentCamera = require(ReplicatedStorage.Shared.CurrentCamera)
 local camera = require(ReplicatedStorage.Shared.classes.camera.camera)
@@ -22,9 +20,7 @@ type LocalProperties = {} & OOPTypes.ClientClassMethods<LocalProperties>
 
 local Projectors: LocalProperties = {} :: LocalProperties
 
-local scopeTarget = workspace:WaitForChild("ScopeTarget")
-
-RunService:BindToRenderStep("ProjectorsUpdate", Enum.RenderPriority.Camera.Value + 1, function(deltaTime: number)
+function Projectors:PostUpdate(deltaTime: number)
 	local playerCamera = ClassBag:GetClass("camera", true) :: camera.Object
 
 	forEach(CollectionService:GetTagged("projector"), function(projector: Projector)
@@ -51,8 +47,6 @@ RunService:BindToRenderStep("ProjectorsUpdate", Enum.RenderPriority.Camera.Value
 			reticle.Position = UDim2.fromScale(0.5 + distScale.X, 0.5 - distScale.Y)
 		end)
 	end)
-end)
-
-function Projectors:Update(deltaTime: number) end
+end
 
 return Projectors

@@ -11,6 +11,7 @@ local BodyVisibility = require(ReplicatedStorage.Shared.module.BodyVisibility)
 local ClassBag = require(ReplicatedStorage.Shared.module.ClassBag)
 local ClientTags = require(ReplicatedStorage.Shared.module.ClientTags)
 local Gloves = require(ReplicatedStorage.Shared.module.Gloves)
+local Interace = require(ReplicatedStorage.Shared.module.Interace)
 local Projectors = require(ReplicatedStorage.Shared.module.Projectors)
 local SignalBag = require(ReplicatedStorage.Shared.module.SignalBag)
 local Watch = require(ReplicatedStorage.Shared.module.Watch)
@@ -146,6 +147,7 @@ end
 function Client:UpdateCharacter(character)
 	self.camera:UpdateCharacter(character)
 	BodyVisibility:UpdateCharacter(character)
+	Interace:UpdateCharacter(character)
 
 	if self.movement then
 		self.movement = nil
@@ -175,7 +177,6 @@ function Client:Update(deltaTime: number)
 	self.camera:Update(deltaTime)
 	self.freelook:Update(deltaTime)
 	BodyVisibility:Update(deltaTime)
-	Projectors:Update(deltaTime)
 
 	if self.movement then
 		self.movement:Update(deltaTime)
@@ -190,6 +191,10 @@ end
 
 function Client:UpdatePhysics(deltaTime: number)
 	self.camera:UpdatePhysics(deltaTime)
+end
+
+function Client:PostUpdate(deltaTime: number)
+	Projectors:PostUpdate(deltaTime)
 end
 
 return Client

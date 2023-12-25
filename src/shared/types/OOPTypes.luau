@@ -10,6 +10,7 @@ export type UnknownObject = typeof(setmetatable({} :: { [string]: unknown }, {} 
 
 export type ClientClassMethods<Object> = {
 	Update: (self: Object, deltaTime: number) -> (),
+	PostUpdate: (self: Object, deltaTime: number) -> (),
 	UpdatePhysics: (self: UnknownObject, deltaTime: number) -> (),
 	UpdateCharacter: (self: Object, character: Model?) -> (),
 }

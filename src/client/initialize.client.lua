@@ -9,8 +9,12 @@ StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
 
 local clientInstance = client.new()
 
-RunService.RenderStepped:Connect(function(deltaTime: number)
+RunService:BindToRenderStep("Update", Enum.RenderPriority.Camera.Value, function(deltaTime: number)
 	clientInstance:Update(deltaTime)
+end)
+
+RunService:BindToRenderStep("PostUpdate", Enum.RenderPriority.Camera.Value + 1, function(deltaTime: number)
+	clientInstance:PostUpdate(deltaTime)
 end)
 
 RunService:BindToRenderStep("Physics", Enum.RenderPriority.Character.Value + 1, function(deltaTime: number)
