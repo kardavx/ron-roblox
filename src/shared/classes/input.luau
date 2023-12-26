@@ -2,7 +2,7 @@ local ContextActionService = game:GetService("ContextActionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local InputTypes = require(ReplicatedStorage.Shared.types.InputTypes)
-local OOPTypes = require(ReplicatedStorage.Shared.types.OOPTypes)
+local GameTypes = require(ReplicatedStorage.Shared.types.GameTypes)
 local deepClone = require(ReplicatedStorage.Shared.util.deepClone)
 local Signal = require(ReplicatedStorage.package.Signal)
 
@@ -13,7 +13,7 @@ export type Class = {
 	new: (inputMap: InputTypes.InputMap) -> Object,
 	SubscribeToInput: (inputName: string, func: (holding: boolean) -> ()) -> Signal.Connection,
 	Destroy: (self: Object) -> (),
-} & OOPTypes.ClientClassMethods<Object>
+} & GameTypes.ClientMethods<Object>
 
 export type Object = typeof(setmetatable({} :: { inputMap: InputTypes.InputMap }, {} :: Class))
 

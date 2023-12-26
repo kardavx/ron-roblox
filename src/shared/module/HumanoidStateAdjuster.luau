@@ -1,8 +1,8 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local OOPTypes = require(ReplicatedStorage.Shared.types.OOPTypes)
+local GameTypes = require(ReplicatedStorage.Shared.types.GameTypes)
 
-type LocalProperties = {} & OOPTypes.ClientClassMethods<LocalProperties>
+type LocalProperties = {} & GameTypes.ClientMethods<LocalProperties>
 
 local HumanoidStateAdjuster = {}
 

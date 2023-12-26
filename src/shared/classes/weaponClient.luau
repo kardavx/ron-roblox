@@ -1,4 +1,5 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 
 local camera = require(ReplicatedStorage.Shared.classes.camera.camera)
 local cameraModifier = require(ReplicatedStorage.Shared.classes.camera.cameraModifier)
@@ -10,12 +11,13 @@ local loadAnimations = require(ReplicatedStorage.Shared.functions.weapon.loadAni
 local ClassBag = require(ReplicatedStorage.Shared.module.ClassBag)
 local SignalBag = require(ReplicatedStorage.Shared.module.SignalBag)
 local bobbing = require(ReplicatedStorage.Shared.renderPipelines.renderNodes.bobbing)
+local lean = require(ReplicatedStorage.Shared.renderPipelines.renderNodes.lean)
 local move = require(ReplicatedStorage.Shared.renderPipelines.renderNodes.move)
 local obstruction = require(ReplicatedStorage.Shared.renderPipelines.renderNodes.obstruction)
 local sway = require(ReplicatedStorage.Shared.renderPipelines.renderNodes.sway)
 local tilt = require(ReplicatedStorage.Shared.renderPipelines.renderNodes.tilt)
 local renderPipeline = require(ReplicatedStorage.Shared.renderPipelines.renderPipeline)
-local OOPTypes = require(ReplicatedStorage.Shared.types.OOPTypes)
+local GameTypes = require(ReplicatedStorage.Shared.types.GameTypes)
 local WeaponConfigTypes = require(ReplicatedStorage.Shared.types.WeaponConfigTypes)
 local WeaponTypes = require(ReplicatedStorage.Shared.types.WeaponTypes)
 local anyAnimationPlaying = require(ReplicatedStorage.Shared.util.animations.anyAnimationPlaying)
@@ -43,7 +45,7 @@ export type Class = {
 	UpdateLowReady: (self: Object) -> (),
 	AddLowReadyEnabler: (self: Object, enablerId: string) -> (),
 	RemoveLowReadyEnabler: (self: Object, enablerId: string) -> (),
-} & OOPTypes.ClientClassMethods<Object>
+} & GameTypes.ClientMethods<Object>
 
 type RespectTable = { "Equip" | "Equipping" | "Reloading" | "LowReady" }
 
@@ -95,6 +97,7 @@ function Weapon.new(config: WeaponConfigTypes.Config)
 	end
 
 	self.renderPipeline = renderPipeline.new({
+		lean,
 		tilt,
 		obstruction,
 		bobbing,
@@ -190,9 +193,9 @@ function Weapon:UpdateLowReady()
 	SignalBag:Fire("LowReady", self.lowReady)
 
 	if self.lowReady then
-		playAnimation(self.animations.LowReady, 0.1)
+		playAnimation(self.animations.LowReady, 0.3)
 	else
-		stopAnimation(self.animations.LowReady, 0.1)
+		stopAnimation(self.animations.LowReady, 0.3)
 	end
 end
 

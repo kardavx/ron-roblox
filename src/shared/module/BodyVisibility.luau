@@ -1,12 +1,12 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local OOPTypes = require(ReplicatedStorage.Shared.types.OOPTypes)
+local GameTypes = require(ReplicatedStorage.Shared.types.GameTypes)
 
 type LocalProperties = {
 	character: Model?,
 }
 
-local BodyVisibility = {} :: OOPTypes.ClientClassMethods<LocalProperties>
+local BodyVisibility = {} :: GameTypes.ClientMethods<LocalProperties>
 
 local allowedBodyParts = {
 	"Left Leg",

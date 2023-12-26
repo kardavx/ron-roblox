@@ -19,7 +19,7 @@ local config: WeaponConfigTypes.Config = {
 		Unequip = 15740831957,
 		ReloadEmpty = 15746342918,
 		Empty = 15746341233,
-		LowReady = 15740844263,
+		LowReady = 15750486825,
 		Use = 15740845896,
 	},
 	RecoilPunch = 0.3,
