@@ -10,9 +10,11 @@ function Animator.new(humanoid: Humanoid)
 end
 
 function Animator:LoadAnimations(animations: { any }): boolean
-	for _, animationInfos: {} in animations do
+	for animationName, animationInfos: {} in animations do
 		task.spawn(function()
-			for _, animationInfo in animationInfos do
+			self.animationTracks[animationName] = {}
+
+			for index, animationInfo in animationInfos do
 				local animation = Instance.new("Animation")
 				animation.AnimationId = `rbxassetid://{animationInfo.Id}`
 
@@ -27,7 +29,7 @@ function Animator:LoadAnimations(animations: { any }): boolean
 					animationTrack[property] = value
 				end
 
-				table.insert(self.animationTracks, animationTrack)
+				self.animationTracks[animationName][index] = animationTrack
 			end
 		end)
 	end
