@@ -5,7 +5,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local WeaponConfigTypes = require(ReplicatedStorage.Shared.types.WeaponConfigTypes)
 
 local config: WeaponConfigTypes.Config = {
-	ViewmodelName = "MK18",
+	ViewmodelName = "MK18_TACTICAL",
 	FireRate = 780,
 	MaxAmmo = 30,
 	Ammo = 30,
@@ -23,10 +23,10 @@ local config: WeaponConfigTypes.Config = {
 	},
 	RecoilPunch = 0.7,
 	Offsets = {
-		Aim = CFrame.new(-0.7, 0.12, 0),
+		Aim = CFrame.new(-0.7, 0.14, 0),
 	},
-	AdsZoom = -20,
-	AimSpeed = 8,
+	AdsZoom = -40,
+	AimSpeed = 7,
 	AvailibleFiremodes = { "Semi", "Auto" },
 	FireMode = "Auto",
 }

@@ -29,7 +29,7 @@ local function debugUI(UIProps: UIProps)
 				Text = message,
 				AutomaticSize = Enum.AutomaticSize.XY,
 				BackgroundColor3 = Color3.new(),
-				BackgroundTransparency = 0.8,
+				BackgroundTransparency = message == "" and 1 or 0.8,
 				RichText = true,
 				Name = key,
 				LayoutOrder = key,

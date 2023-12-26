@@ -27,6 +27,7 @@ export type Config = {
 	Offsets: Offsets,
 	RecoilPunch: number,
 	AimSpeed: number,
+	AdsZoom: number,
 	AvailibleFiremodes: { FireModes },
 	FireMode: FireModes,
 }

@@ -44,7 +44,6 @@ return {
 			Priority = Enum.AnimationPriority.Action,
 		},
 	},
-	adsZoom = -20,
 	headMovementModifier = 1,
 } :: {
 	animationInfo: {
@@ -53,6 +52,5 @@ return {
 			Priority: Enum.AnimationPriority,
 		},
 	},
-	adsZoom: number,
 	headMovementModifier: number,
 }

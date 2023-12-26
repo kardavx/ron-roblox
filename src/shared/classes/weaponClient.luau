@@ -249,7 +249,7 @@ function Weapon:BindInput()
 				return
 			end
 			self.targetAimOffset = self.config.Offsets.Aim
-			self.adsZoomModifier:SetTarget(GenericWeaponConfig.adsZoom, self.config.AimSpeed)
+			self.adsZoomModifier:SetTarget(self.config.AdsZoom, self.config.AimSpeed)
 		else
 			self.targetAimOffset = CFrame.identity
 			self.adsZoomModifier:SetTarget(0, self.config.AimSpeed)
@@ -295,6 +295,10 @@ function Weapon:BindInput()
 end
 
 function Weapon:UpdateSlide(forcePosition: boolean?)
+	if not self.animations.Empty then
+		return
+	end
+
 	if forcePosition == true then
 		playAnimation(self.animations.Empty, 0)
 		return
@@ -419,7 +423,10 @@ function Weapon:Update(deltaTime: number)
 	end
 
 	if self.shootRequest then
-		if self:CanDoAction({ "Equip", "Equipping", "Reload" }) and tick() >= self.nextShootTick then
+		local tickElapsed = tick() >= self.nextShootTick
+		local actionPermitted = self:CanDoAction({ "Equip", "Equipping", "Reload" })
+
+		if actionPermitted and tickElapsed then
 			local shootSuccess = self:Shoot()
 
 			if not shootSuccess then
@@ -431,8 +438,12 @@ function Weapon:Update(deltaTime: number)
 			end
 
 			self:UpdateNextShootTick()
-		elseif self.config.FireMode == "Semi" then
-			self.shootRequest = false
+		else
+			if not actionPermitted then
+				self.shootRequest = false
+			elseif self.config.FireMode == "Semi" and not tickElapsed then
+				self.shootRequest = false
+			end
 		end
 	end
 

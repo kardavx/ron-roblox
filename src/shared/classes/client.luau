@@ -8,6 +8,7 @@ local input = require(ReplicatedStorage.Shared.classes.input)
 local movement = require(ReplicatedStorage.Shared.classes.movement)
 local weaponClient = require(ReplicatedStorage.Shared.classes.weaponClient)
 local MK18Config = require(ReplicatedStorage.Shared.configurations.weapons.MK18Config)
+local MK18TacConfig = require(ReplicatedStorage.Shared.configurations.weapons.MK18TacConfig)
 local SigSauerConfig = require(ReplicatedStorage.Shared.configurations.weapons.SigSauerConfig)
 local BodyVisibility = require(ReplicatedStorage.Shared.module.BodyVisibility)
 local ClassBag = require(ReplicatedStorage.Shared.module.ClassBag)
@@ -192,7 +193,7 @@ function Client:ApplyLoadout(forced: boolean?)
 
 	self.weaponsJanitor:DoCleaning()
 	self.weapons = {
-		Primary = weaponClient.new(MK18Config),
+		Primary = weaponClient.new(MK18TacConfig),
 		Secondary = weaponClient.new(SigSauerConfig),
 	}
 
