@@ -28,7 +28,8 @@ function Lean:PreUpdate(deltaTime: number)
 	local factor = state.leanFactor
 
 	self.viewmodelCurrent = self.viewmodelCurrent:Lerp(
-		CFrame.new(-0.1 * factor, -0.1 * factor, 0) * CFrame.Angles(0, 0, math.rad(leanAmount * factor)),
+		CFrame.new(-0.1 * factor, -0.1 * factor, 0)
+			* CFrame.Angles(0, 0, math.rad(leanConfig.leanAngularAmount * factor)),
 		leanConfig.leanSpeed * deltaTime
 	)
 end

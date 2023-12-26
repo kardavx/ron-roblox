@@ -56,7 +56,7 @@ function Client.new()
 	local self = setmetatable({}, Client)
 
 	self.camera = camera.new()
-	self.weaponsDebug = debug.new(UDim2.fromOffset(200, 100))
+	self.weaponsDebug = debug.new(UDim2.fromOffset(0, 100))
 	self.weaponChangeQueued = false
 	self.input = input.new({
 		Primary = {
