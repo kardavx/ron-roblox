@@ -46,6 +46,8 @@ function PlayerClass.new(player: Player)
 	self.player = player
 	self.lean = lean.new(self.player, self.data)
 
+	print(`player class created for {player.Name}`)
+
 	return self
 end
 

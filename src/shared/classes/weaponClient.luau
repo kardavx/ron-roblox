@@ -58,6 +58,8 @@ export type Object = typeof(setmetatable(
 		reloading: boolean,
 		shootRequest: boolean,
 
+		debug: { string },
+
 		targetAimOffset: CFrame,
 		currentAimOffset: CFrame,
 
@@ -112,6 +114,8 @@ function Weapon.new(config: WeaponConfigTypes.Config)
 	self.equipped = false
 	self.reloading = false
 	self.shootRequest = false
+
+	self.debug = {}
 
 	self.targetAimOffset = CFrame.identity
 	self.currentAimOffset = CFrame.identity
@@ -336,12 +340,28 @@ end
 function Weapon:Equip()
 	self.equipping = true
 	return Promise.new(function(resolve)
-		self.equipping = false
 		self.equipped = true
 		playAnimation(self.animations.Idle, 0)
 		self:UpdateSlide()
 		onAnimationEnded(self.animations.Equip, function()
 			self:BindInput()
+			self.equipping = false
+			resolve()
+		end, 0)
+	end)
+end
+
+function Weapon:Unequip()
+	self.inputJanitor:DoCleaning()
+	self.targetAimOffset = CFrame.identity
+	self.adsZoomModifier:SetTarget(0, self.config.AimSpeed)
+	self.equipping = true
+
+	return Promise.new(function(resolve)
+		onAnimationEnded(self.animations.Unequip, function()
+			stopAnimations(self.animations, 0)
+			self.equipped = false
+			self.equipping = false
 			resolve()
 		end, 0)
 	end)
@@ -372,25 +392,28 @@ function Weapon:Reload()
 	end, 0)
 end
 
-function Weapon:Unequip()
-	self.inputJanitor:DoCleaning()
-	self.targetAimOffset = CFrame.identity
-	self.adsZoomModifier:SetTarget(0, self.config.AimSpeed)
-
-	return Promise.new(function(resolve)
-		onAnimationEnded(self.animations.Unequip, function()
-			stopAnimations(self.animations, 0)
-			resolve()
-			self.equipped = false
-		end, 0)
-	end)
-end
-
 function Weapon:Destroy()
 	self.janitor:Destroy()
 end
 
 function Weapon:Update(deltaTime: number)
+	self.debug = {
+		`STATE`,
+		``,
+		`equipping: {self.equipping}`,
+		`equipped: {self.equipped}`,
+		`reloading: {self.reloading}`,
+		`lowReady: {self.lowReady}`,
+		`shootRequest: {self.shootRequest}`,
+		`canDoAction: {self:CanDoAction("All")}`,
+		``,
+		`AMMO`,
+		``,
+		`ammo: {self.config.Ammo}`,
+		`maxAmmo: {self.config.MaxAmmo}`,
+		`mags: {self.config.Mags}`,
+	}
+
 	if not self.viewmodel then
 		return
 	end

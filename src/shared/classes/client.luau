@@ -2,10 +2,12 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local LocalPlayer = require(ReplicatedStorage.Shared.LocalPlayer)
 local camera = require(ReplicatedStorage.Shared.classes.camera.camera)
+local debug = require(ReplicatedStorage.Shared.classes.debug)
 local freelook = require(ReplicatedStorage.Shared.classes.freelook)
 local input = require(ReplicatedStorage.Shared.classes.input)
 local movement = require(ReplicatedStorage.Shared.classes.movement)
 local weaponClient = require(ReplicatedStorage.Shared.classes.weaponClient)
+local MK18Config = require(ReplicatedStorage.Shared.configurations.weapons.MK18Config)
 local SigSauerConfig = require(ReplicatedStorage.Shared.configurations.weapons.SigSauerConfig)
 local BodyVisibility = require(ReplicatedStorage.Shared.module.BodyVisibility)
 local ClassBag = require(ReplicatedStorage.Shared.module.ClassBag)
@@ -23,6 +25,8 @@ local Maid = require(ReplicatedStorage.package.Maid)
 local possibleGloves = { "bulky", "None" }
 local possibleWatches = { "silver", "None" }
 
+type LoadoutUnion = "Primary" | "Secondary"
+
 export type Class = {
 	__index: Class,
 	new: () -> Object,
@@ -31,9 +35,10 @@ export type Class = {
 
 export type Object = typeof(setmetatable(
 	{} :: {
-		currentWeapon: "Secondary"?,
+		currentWeapon: LoadoutUnion?,
+		weaponChangeQueued: boolean,
 		weapons: {
-			Secondary: weaponClient.Object,
+			[LoadoutUnion]: weaponClient.Object,
 		}?,
 		movement: movement.Object?,
 		freelook: freelook.Object,
@@ -50,7 +55,13 @@ function Client.new()
 	local self = setmetatable({}, Client)
 
 	self.camera = camera.new()
+	self.weaponsDebug = debug.new(UDim2.fromOffset(200, 100))
+	self.weaponChangeQueued = false
 	self.input = input.new({
+		Primary = {
+			keyCode = Enum.KeyCode.One,
+			inputType = "Click",
+		},
 		Secondary = {
 			keyCode = Enum.KeyCode.Two,
 			inputType = "Click",
@@ -101,11 +112,41 @@ function Client.new()
 			return
 		end
 
+		if self.weaponChangeQueued == true then
+			return
+		end
+
 		if self.currentWeapon == "Secondary" then
 			return
 		else
+			self.weaponChangeQueued = true
+			self.weapons[self.currentWeapon]:Unequip():await()
+
 			self.currentWeapon = "Secondary"
-			self.weapons[self.currentWeapon]:Equip()
+			self.weapons[self.currentWeapon]:Equip():await()
+			self.weaponChangeQueued = false
+		end
+	end)
+
+	input.SubscribeToInput("Primary", function()
+		if not self.weapons then
+			return
+		end
+
+		if self.weaponChangeQueued == true then
+			print("stopping because weaponChange is queued")
+			return
+		end
+
+		if self.currentWeapon == "Primary" then
+			return
+		else
+			self.weaponChangeQueued = true
+			self.weapons[self.currentWeapon]:Unequip():await()
+
+			self.currentWeapon = "Primary"
+			self.weapons[self.currentWeapon]:Equip():await()
+			self.weaponChangeQueued = false
 		end
 	end)
 
@@ -151,6 +192,7 @@ function Client:ApplyLoadout(forced: boolean?)
 
 	self.weaponsJanitor:DoCleaning()
 	self.weapons = {
+		Primary = weaponClient.new(MK18Config),
 		Secondary = weaponClient.new(SigSauerConfig),
 	}
 
@@ -165,7 +207,7 @@ function Client:ApplyLoadout(forced: boolean?)
 		self.currentWeapon = nil
 	end)
 
-	self.currentWeapon = lastEquippedWeapon or "Secondary"
+	self.currentWeapon = lastEquippedWeapon or "Primary"
 	self.weapons[self.currentWeapon]:Equip()
 end
 
@@ -208,9 +250,24 @@ function Client:Update(deltaTime: number)
 	end
 
 	if self.weapons then
+		local combinedWeaponsDebugMessage = {
+			`weaponChangeQueued: {self.weaponChangeQueued}`,
+			``,
+		}
+
 		for _, singleWeapon in self.weapons do
 			singleWeapon:Update(deltaTime)
+			table.insert(combinedWeaponsDebugMessage, `<b>{singleWeapon.config.ViewmodelName}</b>`)
+			table.insert(combinedWeaponsDebugMessage, ``)
+			for _, debugMessage in singleWeapon.debug do
+				table.insert(combinedWeaponsDebugMessage, debugMessage)
+			end
 		end
+
+		self.weaponsDebug:LogMultilineMessage(combinedWeaponsDebugMessage)
+		self.weaponsDebug:Update()
+	else
+		self.weaponsDebug:LogMessage("weapons doesn't exist")
 	end
 end
 
