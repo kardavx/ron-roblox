@@ -14,6 +14,7 @@ local bobbing = require(ReplicatedStorage.Shared.renderPipelines.renderNodes.bob
 local lean = require(ReplicatedStorage.Shared.renderPipelines.renderNodes.lean)
 local move = require(ReplicatedStorage.Shared.renderPipelines.renderNodes.move)
 local obstruction = require(ReplicatedStorage.Shared.renderPipelines.renderNodes.obstruction)
+local sightOcclusion = require(ReplicatedStorage.Shared.renderPipelines.renderNodes.sightOcclusion)
 local sway = require(ReplicatedStorage.Shared.renderPipelines.renderNodes.sway)
 local tilt = require(ReplicatedStorage.Shared.renderPipelines.renderNodes.tilt)
 local renderPipeline = require(ReplicatedStorage.Shared.renderPipelines.renderPipeline)
@@ -105,6 +106,7 @@ function Weapon.new(config: WeaponConfigTypes.Config)
 		bobbing,
 		sway,
 		move,
+		sightOcclusion,
 	})
 
 	--// what the fuck is this state managment
