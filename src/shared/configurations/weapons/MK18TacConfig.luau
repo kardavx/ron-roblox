@@ -25,7 +25,7 @@ local config: WeaponConfigTypes.Config = {
 	Offsets = {
 		Aim = CFrame.new(-0.7, 0.14, 0),
 	},
-	AdsZoom = -40,
+	AdsZoom = -55,
 	AimSpeed = 7,
 	AvailibleFiremodes = { "Semi", "Auto" },
 	FireMode = "Auto",
