@@ -5,6 +5,9 @@ local NPC = require(ServerScriptService.classes.NPC)
 local civilian = Civilian.new()
 civilian:Spawn("Tyler", CFrame.new(-10, 0, 30))
 
+civilian:MoveTo(workspace:WaitForChild("Goal"))
+civilian:SetState("HandsUp")
+
 local NPCTest = {}
 
 return NPCTest

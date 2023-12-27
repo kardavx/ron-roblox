@@ -7,6 +7,15 @@ return setmetatable(NPCSConfig, {
 				Idle = {
 					{ Id = 15746292677 },
 				},
+				Run = {
+					{ Id = 15770191690 },
+				},
+				Walk = {
+					{ Id = 15770191690 },
+				},
+				HandsUp = {
+					{ Id = 15771932574 },
+				},
 			},
 		}
 	end,

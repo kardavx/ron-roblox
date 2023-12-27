@@ -15,6 +15,14 @@ function Civilian:Spawn(...)
 	self.npc:Spawn(...)
 end
 
+function Civilian:MoveTo(...)
+	self.npc:MoveTo(...)
+end
+
+function Civilian:SetState(...)
+	self.npc:SetState(...)
+end
+
 function Civilian:Destroy() end
 
 return Civilian

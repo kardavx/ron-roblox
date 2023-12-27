@@ -9,6 +9,10 @@ function Animator.new(humanoid: Humanoid)
 	return self
 end
 
+function Animator:GetAnimationTrack(name: string)
+	return self.animationTracks[name]
+end
+
 function Animator:LoadAnimations(animations: { any }): boolean
 	for animationName, animationInfos: {} in animations do
 		task.spawn(function()
