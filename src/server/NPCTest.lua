@@ -6,7 +6,6 @@ local civilian = Civilian.new()
 civilian:Spawn("Tyler", workspace:WaitForChild("Start").CFrame)
 
 civilian:MoveTo(workspace:WaitForChild("Goal"))
-civilian:SetState("Run")
 
 task.wait(8)
 

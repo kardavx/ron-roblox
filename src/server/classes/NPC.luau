@@ -30,6 +30,7 @@ function NPC:MoveTo(destination: Vector3): ()
 		self.connections.pathReached:Disconnect()
 	end
 	self.pathFinder:SetGoal(destination)
+	self:SetState("Run")
 
 	self.connections.pathReached = self.pathFinder.events.moveToFinished.Event:Once(function()
 		if self.state == "Run" or self.state == "Walk" then
