@@ -1,3 +1,4 @@
+local ServerScriptService = game:GetService("ServerScriptService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -5,6 +6,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 
 local Maid = require(ReplicatedStorage.package.Maid)
 local playerClass = require(ServerScriptService.classes.player)
+require(ServerScriptService.NPCTest)
 
 ---// inicjalizuje serverDate, nie pytaj czemu w taki sposob - shibe to wymyslil XD
 require(ServerScriptService.module.ServerPlayerData)

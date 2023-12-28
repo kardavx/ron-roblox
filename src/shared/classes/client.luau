@@ -16,8 +16,10 @@ local ClassBag = require(ReplicatedStorage.Shared.module.ClassBag)
 local ClientPlayerData = require(ReplicatedStorage.Shared.module.ClientPlayerData)
 local ClientTags = require(ReplicatedStorage.Shared.module.ClientTags)
 local Gloves = require(ReplicatedStorage.Shared.module.Gloves)
+local HumanoidStateAdjuster = require(ReplicatedStorage.Shared.module.HumanoidStateAdjuster)
 local Interace = require(ReplicatedStorage.Shared.module.Interace)
 local Projectors = require(ReplicatedStorage.Shared.module.Projectors)
+local HumanoidStateAdjuster = require(ReplicatedStorage.Shared.module.HumanoidStateAdjuster)
 local SignalBag = require(ReplicatedStorage.Shared.module.SignalBag)
 local Watch = require(ReplicatedStorage.Shared.module.Watch)
 local GameTypes = require(ReplicatedStorage.Shared.types.GameTypes)
@@ -223,6 +225,9 @@ function Client:UpdateCharacter(character)
 	end
 
 	if character then
+		self.movement = movement.new(character, 4)
+		HumanoidStateAdjuster:AdjustStates(character.Humanoid)
+
 		local choosenGloves = chooseRandomFromArray(possibleGloves)
 		if choosenGloves == "None" then
 			choosenGloves = nil
