@@ -23,6 +23,18 @@ function Civilian:SetState(...)
 	self.npc:SetState(...)
 end
 
+function Civilian:HandsUp(...)
+	self.npc:HandsUp(...)
+end
+
+function Civilian:OnKnees(...)
+	self.npc:OnKnees(...)
+end
+
+function Civilian:StopMoving(...)
+	self.npc:StopMoving(...)
+end
+
 function Civilian:Destroy() end
 
 return Civilian

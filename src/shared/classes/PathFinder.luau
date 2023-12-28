@@ -1,19 +1,23 @@
 local PathfindingService = game:GetService("PathfindingService")
 local RunService = game:GetService("RunService")
+local TextureGenerationMeshHandler = game:GetService("TextureGenerationMeshHandler")
 
 local PathFinder = {}
 local PathFinders = {}
 PathFinder.__index = PathFinder
 
-function PathFinder:MoveToFinished(success: boolean)
-	for _, connection in self.connections do
-		connection:Disconnect()
+function PathFinder:MoveToFinished()
+	if self.connections.moveToFinished then
+		self.connections.moveToFinished:Disconnect()
 	end
 
-	if success then
-		self.events.moveToFinished:Fire()
-		self.goal = nil
+	if self.humanoid then
+		self.humanoid:Move(Vector3.zero)
 	end
+
+	self.events.moveToFinished:Fire()
+	self.goal = nil
+	self.blockRetry = 0
 end
 
 function PathFinder:GetGoalPosition(): Vector3
@@ -23,12 +27,54 @@ function PathFinder:GetGoalPosition(): Vector3
 		or self.goal.Position
 end
 
+function PathFinder:FollowWaypoints()
+	if self.connections.moveToFinished then
+		self.connections.moveToFinished:Disconnect()
+	end
+
+	pcall(function()
+		self.agent.PrimaryPart:SetNetworkOwner(nil)
+	end)
+
+	self.connections.moveToFinished = self.humanoid.MoveToFinished:Once(function()
+		local cFrame = self.agent.PrimaryPart:GetPivot()
+
+		if self.lastCFrame and (cFrame.Position - self.lastCFrame.Position).Magnitude <= 0.1 then
+			self.blockRetry += 1
+		else
+			self.blockRetry = 0
+		end
+
+		if self.blockRetry >= 4 then
+			return self:MoveToFinished()
+		end
+
+		self.lastCFrame = cFrame
+
+		self.currentWaypoint += 1
+	end)
+
+	if self.currentWaypoint >= #self.waypoints then
+		self:MoveToFinished(true)
+		return
+	end
+
+	if self.humanoid then
+		self.humanoid:MoveTo(self.waypoints[self.currentWaypoint].Position)
+	else
+		self:MoveToFinished()
+	end
+end
+
 function PathFinder:SetGoal(goal: Vector3): boolean
 	self.goal = goal
 	self.goalPosition = self:GetGoalPosition(self.goal)
-	local humanoid = self.agent and self.agent:FindFirstChildWhichIsA("Humanoid")
 
-	if not humanoid or humanoid.Health <= 0 or humanoid:GetState() == Enum.HumanoidStateType.Freefall then
+	if
+		not self.humanoid
+		or self.humanoid.Health <= 0
+		or self.humanoid:GetState() == Enum.HumanoidStateType.Freefall
+	then
 		return false
 	end
 
@@ -37,35 +83,20 @@ function PathFinder:SetGoal(goal: Vector3): boolean
 	end)
 
 	if success and self.path.Status == Enum.PathStatus.Success then
-		self.waypoints = self.path:GetWaypoints()
+		local waypoints = self.path:GetWaypoints()
 
-		if #self.waypoints < 2 then
+		if #waypoints < 2 then
 			return false
 		end
 
-		pcall(function()
-			self.agent.PrimaryPart:SetNetworkOwner(nil)
-		end)
-
 		self.currentWaypoint = 2
+		self.waypoints = waypoints
 
-		self.connections.moveToFinished = humanoid.MoveToFinished:Once(function()
-			self:MoveToFinished()
-		end)
-
-		if humanoid then
-			humanoid:MoveTo(self.waypoints[self.currentWaypoint].Position)
-		elseif #self.waypoints == 2 then
-			self:MoveToFinished()
-		else
-			self:MoveToFinished()
-		end
-
-		if self.currentWaypoint == #self.waypoints then
-			self:MoveToFinished(true)
-		end
+		self:FollowWaypoints()
 
 		return true
+	else
+		self:MoveToFinished()
 	end
 
 	return false
@@ -74,14 +105,9 @@ end
 function PathFinder.new(agent: Model, agentInfo: { any } | nil)
 	local self = setmetatable({}, PathFinder)
 	self.agent = agent
-	self.path = PathfindingService:CreatePath(agentInfo or {
-		AgentRadius = 3,
-		AgentHeight = 6,
-		AgentCanJump = false,
-		Costs = {
-			Water = 20,
-		},
-	})
+	self.humanoid = self.agent:FindFirstChildWhichIsA("Humanoid")
+	self.path = PathfindingService:CreatePath(agentInfo)
+	self.blockRetry = 0
 
 	self.events = {
 		moveToFinished = Instance.new("BindableEvent"),

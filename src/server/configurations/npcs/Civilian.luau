@@ -16,6 +16,9 @@ return setmetatable(NPCSConfig, {
 				HandsUp = {
 					{ Id = 15771932574 },
 				},
+				OnKnees = {
+					{ Id = 15782182058 },
+				},
 			},
 		}
 	end,

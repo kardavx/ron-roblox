@@ -3,10 +3,19 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local Civilian = require(ServerScriptService.classes.Civilian)
 local NPC = require(ServerScriptService.classes.NPC)
 local civilian = Civilian.new()
-civilian:Spawn("Tyler", CFrame.new(-10, 0, 30))
+civilian:Spawn("Tyler", workspace:WaitForChild("Start").CFrame)
 
 civilian:MoveTo(workspace:WaitForChild("Goal"))
-civilian:SetState("HandsUp")
+civilian:SetState("Run")
+
+task.wait(8)
+
+civilian:HandsUp()
+civilian:StopMoving()
+
+task.wait(3)
+
+civilian:OnKnees()
 
 local NPCTest = {}
 
