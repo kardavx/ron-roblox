@@ -32,6 +32,10 @@ function PathFinder:FollowWaypoints()
 		self.connections.moveToFinished:Disconnect()
 	end
 
+	if not self.goal then
+		return
+	end
+
 	pcall(function()
 		self.agent.PrimaryPart:SetNetworkOwner(nil)
 	end)
@@ -52,6 +56,7 @@ function PathFinder:FollowWaypoints()
 		self.lastCFrame = cFrame
 
 		self.currentWaypoint += 1
+		self:FollowWaypoints()
 	end)
 
 	if self.currentWaypoint >= #self.waypoints then

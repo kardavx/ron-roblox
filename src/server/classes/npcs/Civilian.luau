@@ -1,6 +1,6 @@
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local NPC = require(ServerScriptService.classes.NPC)
+local NPC = require(ServerScriptService.classes.npcs.NPC)
 local Civilian = {}
 Civilian.__index = Civilian
 
@@ -11,28 +11,44 @@ function Civilian.new(intimidation: number | nil, aggressiveness: number | nil)
 	return self
 end
 
+function Civilian:GetCharacter(...)
+	return self.npc:GetCharacter(...)
+end
+
 function Civilian:Spawn(...)
-	self.npc:Spawn(...)
+	return self.npc:Spawn(...)
 end
 
 function Civilian:MoveTo(...)
-	self.npc:MoveTo(...)
+	return self.npc:MoveTo(...)
 end
 
 function Civilian:SetState(...)
-	self.npc:SetState(...)
+	return self.npc:SetState(...)
 end
 
 function Civilian:HandsUp(...)
-	self.npc:HandsUp(...)
+	return self.npc:HandsUp(...)
+end
+
+function Civilian:Surrender(...)
+	return self.npc:Surrender(...)
 end
 
 function Civilian:OnKnees(...)
-	self.npc:OnKnees(...)
+	return self.npc:OnKnees(...)
 end
 
 function Civilian:StopMoving(...)
-	self.npc:StopMoving(...)
+	return self.npc:StopMoving(...)
+end
+
+function Civilian:ScreamOn(...)
+	return self.npc:ScreamOn(...)
+end
+
+function Civilian:GetPivot(...)
+	return self.npc:GetPivot(...)
 end
 
 function Civilian:Destroy() end
