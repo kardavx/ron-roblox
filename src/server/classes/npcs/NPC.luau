@@ -105,22 +105,24 @@ function NPC:StopMoving()
 	end
 end
 
-function NPC:HandsUp()
+function NPC:HandsUp(): boolean
 	if self.areHandsUp then
-		return
+		return false
 	end
 
 	self.areHandsUp = true
 	self:PlayAnimation("HandsUp")
+	return true
 end
 
-function NPC:HandsDown()
+function NPC:HandsDown(): boolean
 	if not self.areHandsUp then
-		return
+		return false
 	end
 
 	self.areHandsUp = false
 	self:StopAnimation("HandsUp")
+	return true
 end
 
 function NPC:OnKnees()
@@ -143,6 +145,23 @@ function NPC:OffKnees()
 	self:StopAnimation("OnKnees")
 end
 
+function NPC:Surrender()
+	self:StopMoving()
+	return self:HandsUp()
+end
+
+function NPC:ScreamOn(): ()
+	if not self.areHandsUp then
+		return
+	end
+
+	self:OnKnees()
+end
+
+function NPC:GetCharacter(): Model | nil
+	return self.character
+end
+
 function NPC:Spawn(modelName: string, spawnCFrame: CFrame): ()
 	self.character = self:CreateCharacterModel(modelName)
 	self.character.Parent = workspace
@@ -153,6 +172,14 @@ function NPC:Spawn(modelName: string, spawnCFrame: CFrame): ()
 	self.character:PivotTo(spawnCFrame)
 
 	self.pathFinder = PathFinder.new(self.character)
+end
+
+function NPC:GetPivot()
+	if not self.character then
+		return
+	end
+
+	return self.character:GetPivot()
 end
 
 function NPC:Destroy(): ()
