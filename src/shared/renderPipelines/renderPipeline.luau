@@ -60,7 +60,12 @@ function RenderPipeline:PreUpdate(deltaTime: number, ...)
 	end
 end
 
-function RenderPipeline:Update(deltaTime: number, currentCFrame: CFrame, ...): CFrame
+function RenderPipeline:Update(
+	deltaTime: number,
+	currentCFrame: CFrame,
+	updaterFunction: (currentCFrame: CFrame) -> (),
+	...
+)
 	local arguments = { ... }
 	local finalCFrame = currentCFrame
 
@@ -71,10 +76,9 @@ function RenderPipeline:Update(deltaTime: number, currentCFrame: CFrame, ...): C
 
 		task.spawn(function()
 			finalCFrame = nodeObject:Update(deltaTime, finalCFrame, table.unpack(arguments))
+			updaterFunction(finalCFrame)
 		end)
 	end
-
-	return finalCFrame
 end
 
 function RenderPipeline:PostUpdate(deltaTime: number, ...)

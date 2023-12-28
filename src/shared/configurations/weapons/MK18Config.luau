@@ -22,10 +22,8 @@ local config: WeaponConfigTypes.Config = {
 		Use = 15757536137,
 	},
 	RecoilPunch = 0.7,
-	Offsets = {
-		Aim = CFrame.new(-0.7, 0.12, 0),
-	},
 	AdsZoom = -20,
+	AimParts = { "DefaultAimPart" },
 	AimSpeed = 8,
 	AvailibleFiremodes = { "Semi", "Auto" },
 	FireMode = "Auto",

@@ -44,7 +44,8 @@ return {
 			Priority = Enum.AnimationPriority.Action,
 		},
 	},
-	headMovementModifier = 1,
+	headMovementMultiplier = 1,
+	aimingHandleTransformMultiplier = 0.2,
 } :: {
 	animationInfo: {
 		[WeaponConfigTypes.AnimationsUnion]: {
@@ -52,5 +53,6 @@ return {
 			Priority: Enum.AnimationPriority,
 		},
 	},
-	headMovementModifier: number,
+	aimingHandleTransformMultiplier: number,
+	headMovementMultiplier: number,
 }

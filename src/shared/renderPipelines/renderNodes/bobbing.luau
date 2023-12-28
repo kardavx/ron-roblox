@@ -44,7 +44,7 @@ function Bobbing:Update(deltaTime: number, currentCFrame: CFrame, viewmodel: Wea
 	return offsetFromPivot(
 		currentCFrame,
 		viewmodel.weapon.Handle.CFrame,
-		CFrame.Angles(self.spring.Value.Z, self.spring.Value.X, self.spring.Value.y)
+		CFrame.Angles(self.spring.Value.Y, self.spring.Value.X, self.spring.Value.Z)
 	)
 end
 

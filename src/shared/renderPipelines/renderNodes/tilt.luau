@@ -23,9 +23,9 @@ function Tilt:PreUpdate(deltaTime: number)
 	local primaryPart = LocalPlayer.Character.PrimaryPart
 
 	self.target = CFrame.Angles(
-		math.rad(10 * -getMoveDirectionInObjectSpace().X * math.min(primaryPart.AssemblyLinearVelocity.Magnitude, 1)),
 		0,
-		0
+		0,
+		math.rad(10 * -getMoveDirectionInObjectSpace().X * math.min(primaryPart.AssemblyLinearVelocity.Magnitude, 1))
 	)
 
 	self.current = self.current:Lerp(self.target, 3 * deltaTime)

@@ -13,9 +13,6 @@ export type AnimationsUnion =
 	| "Use"
 export type AnimationTracks = { [AnimationsUnion]: { AnimationTrack } | AnimationTrack }
 export type Animations = { [AnimationsUnion]: { number } | number }
-export type Offsets = {
-	Aim: CFrame,
-}
 
 export type Config = {
 	ViewmodelName: string,
@@ -24,8 +21,8 @@ export type Config = {
 	Ammo: number,
 	Mags: number,
 	Animations: Animations?,
-	Offsets: Offsets,
 	RecoilPunch: number,
+	AimParts: { string },
 	AimSpeed: number,
 	AdsZoom: number,
 	AvailibleFiremodes: { FireModes },

@@ -4,11 +4,10 @@ local leanConfig = require(ReplicatedStorage.Shared.configurations.leanConfig)
 local ClientPlayerData = require(ReplicatedStorage.Shared.module.ClientPlayerData)
 local RenderPipelineTypes = require(ReplicatedStorage.Shared.types.RenderPipelineTypes)
 local WeaponTypes = require(ReplicatedStorage.Shared.types.WeaponTypes)
+local offsetFromPivot = require(ReplicatedStorage.Shared.util.offsetFromPivot)
 
 local Lean: RenderPipelineTypes.NodeClass = {} :: RenderPipelineTypes.NodeClass
 Lean.__index = Lean
-
-local leanAmount = 20
 
 function Lean.new(): RenderPipelineTypes.NodeObject
 	local self = setmetatable({}, Lean)
@@ -19,7 +18,7 @@ function Lean.new(): RenderPipelineTypes.NodeObject
 	return self
 end
 
-function Lean:PreUpdate(deltaTime: number)
+function Lean:PreUpdate(deltaTime: number, viewmodel: WeaponTypes.Viewmodel, curentAimPart, isAiming, viewmodelInfo)
 	if not ClientPlayerData.serverProfile then
 		return
 	end
@@ -28,13 +27,19 @@ function Lean:PreUpdate(deltaTime: number)
 	local factor = state.leanFactor
 
 	self.viewmodelCurrent = self.viewmodelCurrent:Lerp(
-		CFrame.new(-0.1 * factor, -0.1 * factor, 0)
-			* CFrame.Angles(0, 0, math.rad(leanConfig.leanAngularAmount * factor)),
+		CFrame.Angles(0, 0, math.rad(leanConfig.leanAngularAmount * factor)),
 		leanConfig.leanSpeed * deltaTime
 	)
 end
 
-function Lean:Update(deltaTime: number, currentCFrame: CFrame, viewmodel: WeaponTypes.Viewmodel): CFrame
+function Lean:Update(
+	deltaTime: number,
+	currentCFrame: CFrame,
+	viewmodel: WeaponTypes.Viewmodel,
+	viewmodelInfo,
+	curentAimPart,
+	isAiming
+): CFrame
 	return currentCFrame * self.viewmodelCurrent
 end
 

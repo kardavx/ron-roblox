@@ -43,8 +43,13 @@ function Projectors:PostUpdate(deltaTime: number)
 			end
 
 			local distScale = projector.CFrame:PointToObjectSpace(CurrentCamera.CFrame.Position) / projector.Size
-
-			reticle.Position = UDim2.fromScale(0.5 + distScale.X, 0.5 - distScale.Y)
+			local smoothing = reticle:GetAttribute("SmoothingSpeed")
+			if smoothing then
+				reticle.Position =
+					reticle.Position:Lerp(UDim2.fromScale(0.5 + distScale.X, 0.5 - distScale.Y), smoothing * deltaTime)
+			else
+				reticle.Position = UDim2.fromScale(0.5 + distScale.X, 0.5 - distScale.Y)
+			end
 		end)
 	end)
 end

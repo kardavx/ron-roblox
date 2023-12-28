@@ -31,11 +31,11 @@ function Sway:Update(deltaTime: number, currentCFrame: CFrame, viewmodel: Weapon
 		currentCFrame
 			* CFrame.new(
 				self.spring.Value.x * 3,
-				-math.abs(self.spring.Value.x) * 0.4,
-				math.abs(self.spring.Value.x) * 0.3
+				math.abs(self.spring.Value.x) * 0.3,
+				-math.abs(self.spring.Value.x) * 0.4
 			),
 		viewmodel.weapon.Handle.CFrame,
-		CFrame.Angles(self.spring.Value.x * 2, self.spring.Value.x * 0.5, self.spring.Value.y)
+		CFrame.Angles(self.spring.Value.x * 0.5, self.spring.Value.y, self.spring.Value.x * 2)
 	)
 end
 

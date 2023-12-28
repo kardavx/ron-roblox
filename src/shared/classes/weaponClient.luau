@@ -7,9 +7,11 @@ local fovModifier = require(ReplicatedStorage.Shared.classes.camera.fovModifier)
 local input = require(ReplicatedStorage.Shared.classes.input)
 local GenericWeaponConfig = require(ReplicatedStorage.Shared.configurations.weapons.GenericWeaponConfig)
 local createViewmodel = require(ReplicatedStorage.Shared.functions.weapon.createViewmodel)
+local loadAnimationInformation = require(ReplicatedStorage.Shared.functions.weapon.loadAnimationInformation)
 local loadAnimations = require(ReplicatedStorage.Shared.functions.weapon.loadAnimations)
 local ClassBag = require(ReplicatedStorage.Shared.module.ClassBag)
 local SignalBag = require(ReplicatedStorage.Shared.module.SignalBag)
+local aim = require(ReplicatedStorage.Shared.renderPipelines.renderNodes.aim)
 local bobbing = require(ReplicatedStorage.Shared.renderPipelines.renderNodes.bobbing)
 local lean = require(ReplicatedStorage.Shared.renderPipelines.renderNodes.lean)
 local move = require(ReplicatedStorage.Shared.renderPipelines.renderNodes.move)
@@ -39,6 +41,7 @@ export type Class = {
 	Destroy: (self: Object) -> (),
 	BindInput: (self: Object) -> (),
 	CanDoAction: (self: Object, respect: RespectTable | "All") -> boolean,
+	UpdateAimParts: (self: Object) -> (),
 	Reload: (self: Object) -> (),
 	Shoot: (self: Object) -> boolean,
 	UpdateSlide: (self: Object, forcePosition: boolean?) -> (),
@@ -58,11 +61,12 @@ export type Object = typeof(setmetatable(
 		equipped: boolean,
 		reloading: boolean,
 		shootRequest: boolean,
+		aiming: boolean,
 
 		debug: { string },
 
-		targetAimOffset: CFrame,
-		currentAimOffset: CFrame,
+		aimParts: { BasePart },
+		currentAimPart: number,
 
 		renderPipeline: renderPipeline.Object,
 
@@ -71,6 +75,11 @@ export type Object = typeof(setmetatable(
 		camera: camera.Object,
 		config: WeaponConfigTypes.Config,
 		animations: { [WeaponConfigTypes.AnimationsUnion]: AnimationTrack },
+		animationInformation: {
+			[WeaponConfigTypes.AnimationsUnion]: { [number]: { [string]: CFrame } }
+				| { { [number]: { [string]: CFrame } } },
+		},
+
 		janitor: Maid.Maid,
 		inputJanitor: Maid.Maid,
 
@@ -101,6 +110,7 @@ function Weapon.new(config: WeaponConfigTypes.Config)
 
 	self.renderPipeline = renderPipeline.new({
 		lean,
+		aim,
 		tilt,
 		obstruction,
 		bobbing,
@@ -116,11 +126,12 @@ function Weapon.new(config: WeaponConfigTypes.Config)
 	self.equipped = false
 	self.reloading = false
 	self.shootRequest = false
+	self.aiming = false
+
+	self.aimParts = {}
+	self.currentAimPart = 1
 
 	self.debug = {}
-
-	self.targetAimOffset = CFrame.identity
-	self.currentAimOffset = CFrame.identity
 
 	self.nextShootTick = tick()
 	self.camera = ClassBag:GetClass("camera", true)
@@ -133,6 +144,7 @@ function Weapon.new(config: WeaponConfigTypes.Config)
 	self.config = loadConfig(config)
 	self.viewmodel = createViewmodel(config.ViewmodelName)
 	self.animations = loadAnimations(config, self.viewmodel)
+	self.animationInformation = loadAnimationInformation(config)
 
 	self.janitor:GiveTask(self.viewmodel)
 
@@ -194,6 +206,25 @@ function Weapon:CanDoAction(respect: RespectTable | "All")
 	return true
 end
 
+function Weapon:UpdateAimParts()
+	local previousAimPart = self.aimParts[self.currentAimPart]
+
+	local newAimParts = {}
+	for _, aimPartName in self.config.AimParts do
+		local aimPartBasePart = self.viewmodel.weapon:FindFirstChild(aimPartName)
+		if not aimPartBasePart then
+			error(`Couldn't find AimPart {aimPartName}, but it was defined in the config!`)
+		end
+
+		table.insert(newAimParts, aimPartBasePart)
+	end
+
+	local oldAimPartPos = table.find(newAimParts, previousAimPart)
+
+	self.currentAimPart = oldAimPartPos or 1
+	self.aimParts = newAimParts
+end
+
 function Weapon:UpdateLowReady()
 	self.lowReady = #self.lowReadyEnablers > 0
 	SignalBag:Fire("LowReady", self.lowReady)
@@ -250,10 +281,10 @@ function Weapon:BindInput()
 			if self.lowReady then
 				return
 			end
-			self.targetAimOffset = self.config.Offsets.Aim
+			self.aiming = true
 			self.adsZoomModifier:SetTarget(self.config.AdsZoom, self.config.AimSpeed)
 		else
-			self.targetAimOffset = CFrame.identity
+			self.aiming = false
 			self.adsZoomModifier:SetTarget(0, self.config.AimSpeed)
 		end
 	end)
@@ -359,7 +390,7 @@ end
 
 function Weapon:Unequip()
 	self.inputJanitor:DoCleaning()
-	self.targetAimOffset = CFrame.identity
+	self.aiming = false
 	self.adsZoomModifier:SetTarget(0, self.config.AimSpeed)
 	self.equipping = true
 
@@ -403,21 +434,28 @@ function Weapon:Destroy()
 end
 
 function Weapon:Update(deltaTime: number)
+	local function formatAimParts(): { string }
+		local names = {}
+		for _, aimpart in self.aimParts do
+			table.insert(names, aimpart.Name)
+		end
+		return names
+	end
+
 	self.debug = {
-		`STATE`,
-		``,
 		`equipping: {self.equipping}`,
 		`equipped: {self.equipped}`,
 		`reloading: {self.reloading}`,
 		`lowReady: {self.lowReady}`,
 		`shootRequest: {self.shootRequest}`,
 		`canDoAction: {self:CanDoAction("All")}`,
-		``,
-		`AMMO`,
-		``,
 		`ammo: {self.config.Ammo}`,
 		`maxAmmo: {self.config.MaxAmmo}`,
 		`mags: {self.config.Mags}`,
+		`aimParts: {table.concat(formatAimParts(), `,`)}`,
+		`curentAimPart: {self.currentAimPart}`,
+		`desiredAimPartName: {self.config.AimParts[self.currentAimPart] and self.config.AimParts[self.currentAimPart] or "None"}`,
+		`currentAimPartName: {self.aimParts[self.currentAimPart] and self.aimParts[self.currentAimPart].Name or "None"}`,
 	}
 
 	if not self.viewmodel then
@@ -451,20 +489,28 @@ function Weapon:Update(deltaTime: number)
 
 	self.fakeCameraModifier:SetTarget(
 		CFrame.new()
-			:Lerp(self.viewmodel.HumanoidRootPart.FakeCamera.Transform, GenericWeaponConfig.headMovementModifier),
+			:Lerp(self.viewmodel.HumanoidRootPart.FakeCamera.Transform, GenericWeaponConfig.headMovementMultiplier),
 		0
 	)
 
-	self.currentAimOffset = self.currentAimOffset:Lerp(self.targetAimOffset, self.config.AimSpeed * deltaTime)
+	self:UpdateAimParts()
 
 	if self.equipped and anyAnimationPlaying(self.animations) then
 		self.viewmodel:PivotTo(self.camera.rawCameraCFrame)
 
-		self.renderPipeline:PreUpdate(deltaTime, self.viewmodel)
-		self.viewmodel:PivotTo(
-			self.renderPipeline:Update(deltaTime, self.camera.rawCameraCFrame * self.currentAimOffset, self.viewmodel)
+		self.renderPipeline:PreUpdate(
+			deltaTime,
+			self.viewmodel,
+			self.aimParts[self.currentAimPart],
+			self.aiming,
+			self.animationInformation
 		)
-		self.renderPipeline:PostUpdate(deltaTime, self.viewmodel)
+
+		self.renderPipeline:Update(deltaTime, self.camera.rawCameraCFrame, function(currentCFrame: CFrame)
+			self.viewmodel:PivotTo(currentCFrame)
+		end, self.viewmodel, self.animationInformation, self.aimParts[self.currentAimPart], self.aiming)
+
+		self.renderPipeline:PostUpdate(deltaTime, self.viewmodel, self.aimParts[self.currentAimPart], self.aiming)
 	else
 		self.viewmodel:PivotTo(CFrame.new(math.huge, math.huge, math.huge))
 	end
