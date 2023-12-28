@@ -6,7 +6,7 @@ local CurrentCamera = require(ReplicatedStorage.Shared.CurrentCamera)
 local cameraModifier = require(ReplicatedStorage.Shared.classes.camera.cameraModifier)
 local fovModifier = require(ReplicatedStorage.Shared.classes.camera.fovModifier)
 local cameraConfig = require(ReplicatedStorage.Shared.configurations.cameraConfig)
-local OOPTypes = require(ReplicatedStorage.Shared.types.OOPTypes)
+local GameTypes = require(ReplicatedStorage.Shared.types.GameTypes)
 
 export type Class = {
 	__index: Class,
@@ -15,10 +15,11 @@ export type Class = {
 	Shove: (self: Object, shoveAmount: Vector2) -> (),
 	SetLocked: (self: Object, locked: boolean) -> (),
 	UpdateRotationDelta: (self: Object) -> (),
-} & OOPTypes.ClientClassMethods<Object>
+} & GameTypes.ClientMethods<Object>
 
 export type Object = typeof(setmetatable(
 	{} :: {
+		baseFov: number,
 		character: Model?,
 		orientation: Vector2,
 		rawCameraCFrame: CFrame,
@@ -38,6 +39,7 @@ Camera.__index = Camera
 function Camera.new()
 	local self = setmetatable({}, Camera)
 
+	self.baseFov = 80
 	self.character = nil
 	self.orientation = Vector2.zero
 	self.rawCameraCFrame = CFrame.identity
@@ -118,7 +120,7 @@ function Camera:Update(deltaTime: number)
 	humanoid.AutoRotate = false
 
 	self:UpdateDelta(deltaTime)
-	CurrentCamera.FieldOfView = 80 + fovModifier.SumModifiers()
+	CurrentCamera.FieldOfView = self.baseFov + fovModifier.SumModifiers()
 
 	self.currentShove = self.currentShove:Lerp(self.targetShove, 20 * deltaTime)
 	self.orientation += self.currentShove
@@ -141,6 +143,10 @@ function Camera:SetLocked(locked: boolean)
 end
 
 function Camera:UpdatePhysics(deltaTime: number)
+	if not self.character then
+		return
+	end
+
 	local rootPart = self.character:FindFirstChild("HumanoidRootPart") :: BasePart
 	if not rootPart then
 		return

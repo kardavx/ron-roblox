@@ -1,7 +1,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local cameraModifierConfig = require(ReplicatedStorage.Shared.configurations.cameraModifierConfig)
-local OOPTypes = require(ReplicatedStorage.Shared.types.OOPTypes)
+local GameTypes = require(ReplicatedStorage.Shared.types.GameTypes)
 local lerpNumber = require(ReplicatedStorage.Shared.util.lerpNumber)
 
 export type Class = {
@@ -13,7 +13,7 @@ export type Class = {
 	SetEnabled: (self: Object, enabled: boolean) -> (),
 	ResetTarget: (alpha: number?) -> (),
 	Destroy: (self: Object) -> (),
-} & OOPTypes.ClientClassMethods<Object>
+} & GameTypes.ClientMethods<Object>
 
 export type Object = typeof(setmetatable(
 	{} :: { target: number, current: number, enabled: boolean, alpha: number },

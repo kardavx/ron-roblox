@@ -3,7 +3,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local input = require(ReplicatedStorage.Shared.classes.input)
 local movementConfig = require(ReplicatedStorage.Shared.configurations.movementConfig)
 local SignalBag = require(ReplicatedStorage.Shared.module.SignalBag)
-local OOPTypes = require(ReplicatedStorage.Shared.types.OOPTypes)
+local GameTypes = require(ReplicatedStorage.Shared.types.GameTypes)
 local getMoveDirectionInObjectSpace = require(ReplicatedStorage.Shared.util.getMoveDirectionInObjectSpace)
 local lerpNumber = require(ReplicatedStorage.Shared.util.lerpNumber)
 local Maid = require(ReplicatedStorage.package.Maid)
@@ -20,7 +20,7 @@ export type Class = {
 	UpdateSpeed: (self: Object) -> (),
 	BindInput: (self: Object) -> (),
 	Destroy: (self: Object) -> (),
-} & OOPTypes.ClientClassMethods<Object>
+} & GameTypes.ClientMethods<Object>
 
 export type Object = typeof(setmetatable(
 	{} :: {

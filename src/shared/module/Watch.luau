@@ -3,8 +3,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local WatchDirectory = ReplicatedStorage.Watches :: Folder
 
 type LocalProperties = {
-	currentWatch: string,
-	SetCurrentWatch: (self: LocalProperties, WatchName: string) -> (),
+	currentWatch: string?,
+	SetCurrentWatch: (self: LocalProperties, WatchName: string?) -> (),
 	ApplyToViewmodel: (self: LocalProperties, viewmodel: Model) -> (),
 	CleanupOldWatch: (self: LocalProperties, viewmodelOrCharacter: Model) -> (),
 	ApplyToCharacter: (self: LocalProperties, character: Model) -> (),
@@ -56,8 +56,8 @@ local function getWatchFolder(folderFor: "Viewmodel" | "Character", WatchName: s
 	return scope
 end
 
-function Watch:SetCurrentWatch(WatchName: string)
-	if not WatchDirectory:FindFirstChild(WatchName) then
+function Watch:SetCurrentWatch(WatchName: string?)
+	if WatchName ~= nil and not WatchDirectory:FindFirstChild(WatchName) then
 		error(`Given Watch have no storage specified!`)
 	end
 

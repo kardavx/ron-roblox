@@ -1,9 +1,9 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local camera = require(ReplicatedStorage.Shared.classes.camera.camera)
-local OOPTypes = require(ReplicatedStorage.Shared.types.OOPTypes)
+local GameTypes = require(ReplicatedStorage.Shared.types.GameTypes)
 local mergeDictionaries = require(ReplicatedStorage.Shared.util.mergeDictionaries)
 
-type UnknownClasses = { [string]: OOPTypes.UnknownObject }
+type UnknownClasses = { [string]: GameTypes.UnknownObject }
 
 type Classes = {
 	camera: camera.Object,
@@ -14,7 +14,7 @@ export type LocalProperties = {
 	classesAdded: boolean,
 	AddToBag: (self: LocalProperties, classes: UnknownClasses) -> (),
 	ReplaceBag: (self: LocalProperties, classes: UnknownClasses) -> (),
-	GetClass: <T>(self: LocalProperties, className: string, expect: boolean?) -> T & OOPTypes.UnknownObject,
+	GetClass: <T>(self: LocalProperties, className: string, expect: boolean?) -> T & GameTypes.UnknownObject,
 	ClearBag: (self: LocalProperties) -> (),
 }
 
@@ -22,7 +22,7 @@ local ClassBag: LocalProperties = {
 	classes = {},
 } :: LocalProperties
 
-function ClassBag:GetClass<T>(className: string, expect: boolean?): T & OOPTypes.UnknownObject
+function ClassBag:GetClass<T>(className: string, expect: boolean?): T & GameTypes.UnknownObject
 	if not self.classes[className] then
 		if expect then
 			local waitingStartTick = tick()
@@ -39,7 +39,7 @@ function ClassBag:GetClass<T>(className: string, expect: boolean?): T & OOPTypes
 		end
 	end
 
-	return self.classes[className] :: T & OOPTypes.UnknownObject
+	return self.classes[className] :: T & GameTypes.UnknownObject
 end
 
 function ClassBag:AddToBag(classes: UnknownClasses)
