@@ -2,7 +2,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local LocalPlayer = require(ReplicatedStorage.Shared.LocalPlayer)
 local ListLayout = require(ReplicatedStorage.Shared.ui.components.base.ListLayout)
-local useFor = require(ReplicatedStorage.Shared.ui.hook.useFor)
+local ReactFor = require(ReplicatedStorage.Shared.ui.util.ReactFor)
 local React = require(ReplicatedStorage.package.React)
 local ReactRoblox = require(ReplicatedStorage.package.ReactRoblox)
 
@@ -24,7 +24,7 @@ local function debugUI(UIProps: UIProps)
 			OrderedBy = Enum.SortOrder.LayoutOrder,
 		}),
 
-		useFor(UIProps.message, function(message: string, key: number)
+		ReactFor(UIProps.message, function(message: string, key: number)
 			return React.createElement("TextLabel", {
 				Text = message,
 				AutomaticSize = Enum.AutomaticSize.XY,

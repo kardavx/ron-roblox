@@ -1,7 +1,8 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local React = require(ReplicatedStorage.package.React)
-local function useFor<Key, Value>(
+
+local function ReactFor<Key, Value>(
 	iterator: { [Key]: Value },
 	callback: (element: Value, key: Key) -> React.ReactElement<unknown, unknown>
 ): { React.ReactElement<unknown, unknown> }
@@ -14,4 +15,4 @@ local function useFor<Key, Value>(
 	return elements
 end
 
-return useFor
+return ReactFor

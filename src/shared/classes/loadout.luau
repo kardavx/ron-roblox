@@ -6,6 +6,7 @@ local input = require(ReplicatedStorage.Shared.classes.input)
 local weaponClient = require(ReplicatedStorage.Shared.classes.weaponClient)
 local Glock17Config = require(ReplicatedStorage.Shared.configurations.weapons.Glock17Config)
 local MK18TacConfig = require(ReplicatedStorage.Shared.configurations.weapons.MK18TacConfig)
+local ClientPlayerData = require(ReplicatedStorage.Shared.module.ClientPlayerData)
 local SignalBag = require(ReplicatedStorage.Shared.module.SignalBag)
 local GameTypes = require(ReplicatedStorage.Shared.types.GameTypes)
 local Maid = require(ReplicatedStorage.package.Maid)
@@ -17,6 +18,7 @@ export type Class = {
 	new: () -> Object,
 	BindInput: (self: Object) -> (),
 	ApplyLoadout: (self: Object) -> (),
+	UpdateForcedUnequip: (self: Object) -> (),
 } & GameTypes.ClientMethods<Object>
 
 export type Object = typeof(setmetatable(
@@ -24,6 +26,14 @@ export type Object = typeof(setmetatable(
 		currentWeapon: LoadoutUnion?,
 		weaponsJanitor: Maid.Maid,
 		weaponChangeQueued: boolean,
+
+		weaponForceHide: boolean,
+		lastWeaponOnForceHide: LoadoutUnion?,
+
+		forceUnequip: {
+			active: boolean,
+			lastWeapon: LoadoutUnion?,
+		},
 		weapons: {
 			[LoadoutUnion]: weaponClient.Object,
 		}?,
@@ -39,10 +49,24 @@ function Loadout.new()
 
 	self.weaponsJanitor = Maid.new()
 	self.weaponChangeQueued = false
+
+	self.weaponForceHide = false
+
+	self.actionsQueue = {}
 	self.weaponsDebug = debug.new(UDim2.fromOffset(0, 100))
+
+	self.forceUnequip = {
+		active = false,
+	}
 
 	SignalBag:Connect("ApplyLoadout", function()
 		self:ApplyLoadout()
+	end)
+
+	ClientPlayerData.clientProducer:subscribe(function(state)
+		return state.weaponHiders
+	end, function(newValue: { string })
+		self.weaponForceHide = #newValue > 0
 	end)
 
 	self:BindInput()
@@ -109,6 +133,7 @@ function Loadout:ApplyLoadout(forced: boolean?)
 	end
 
 	local lastEquippedWeapon
+	self.weaponChangeQueued = true
 
 	if not forced then
 		if self.currentWeapon then
@@ -135,7 +160,8 @@ function Loadout:ApplyLoadout(forced: boolean?)
 	end)
 
 	self.currentWeapon = lastEquippedWeapon or "Primary"
-	self.weapons[self.currentWeapon]:Equip()
+	self.weapons[self.currentWeapon]:Equip():await()
+	self.weaponChangeQueued = false
 end
 
 function Loadout:Update(deltaTime)
@@ -158,6 +184,27 @@ function Loadout:Update(deltaTime)
 		self.weaponsDebug:Update()
 	else
 		self.weaponsDebug:LogMessage("weapons doesn't exist")
+	end
+
+	if not self.weaponChangeQueued then
+		if self.weaponForceHide and self.currentWeapon then
+			self.lastWeaponOnForceHide = self.currentWeapon
+			self.weaponChangeQueued = true
+
+			self.weapons[self.currentWeapon]:Unequip():andThen(function()
+				self.weaponChangeQueued = false
+			end)
+
+			self.currentWeapon = nil
+		elseif not self.weaponForceHide and not self.currentWeapon and self.lastWeaponOnForceHide then
+			self.currentWeapon = self.lastWeaponOnForceHide
+			self.lastWeaponOnForceHide = nil
+			self.weaponChangeQueued = true
+
+			self.weapons[self.currentWeapon]:Equip():andThen(function()
+				self.weaponChangeQueued = false
+			end)
+		end
 	end
 end
 
