@@ -4,15 +4,18 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local leanConfig = require(ReplicatedStorage.Shared.configurations.leanConfig)
 local ServerPlayerData = require(ServerScriptService.module.ServerPlayerData)
 local GameTypes = require(ReplicatedStorage.Shared.types.GameTypes)
+local Maid = require(ReplicatedStorage.package.Maid)
 
 export type Class = {
 	__index: Class,
 	new: (player: Player, data: ServerPlayerData.ServerPlayerProfile) -> Object,
 	Update: (self: Object, deltaTime: number) -> (),
+	Destroy: (self: Object) -> (),
 } & GameTypes.ServerMethods<Object>
 
 export type Object = typeof(setmetatable(
 	{} :: {
+		characterJanitor: Maid.Maid,
 		data: ServerPlayerData.ServerPlayerProfile,
 		player: Player,
 		currentLean: number,
@@ -26,30 +29,32 @@ Lean.__index = Lean
 function Lean.new(player: Player, data: ServerPlayerData.ServerPlayerProfile)
 	local self = setmetatable({}, Lean)
 
+	self.characterJanitor = Maid.new()
 	self.data = data
 	self.player = player
 	self.currentLean = 0
 
+	self.data.producer:subscribe(function(state)
+		return state.leanFactor
+	end, function(newValue: number)
+		if self.player.Character then
+			self.player.Character:SetAttribute("leanFactor", newValue)
+		end
+	end)
+
+	self.characterJanitor:GiveTask(self.player.CharacterAdded:Connect(function(character: Model)
+		character:SetAttribute("leanFactor", self.data.producer:getState().leanFactor)
+	end))
+
+	if self.player.Character then
+		self.player.Character:SetAttribute("leanFactor", self.data.producer:getState().leanFactor)
+	end
+
 	return self
 end
 
-function Lean:Update(deltaTime: number)
-	if not self.player.Character then
-		return
-	end
-
-	local RootJoint = self.player.Character:FindFirstChild("RootJoint", true) :: Motor6D
-	if not RootJoint then
-		return
-	end
-
-	local factor = self.data.producer:getState().leanFactor
-	RootJoint.C0 = RootJoint.C0:Lerp(
-		leanConfig.baseC0
-			* CFrame.new((leanConfig.leanAngularAmount / 10) * factor, 0, 0)
-			* CFrame.Angles(0, math.rad(leanConfig.leanAngularAmount * factor), 0),
-		leanConfig.leanSpeed * deltaTime
-	)
+function Lean:Destroy()
+	self.characterJanitor:Destroy()
 end
 
 return Lean

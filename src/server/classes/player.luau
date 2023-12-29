@@ -55,11 +55,10 @@ function PlayerClass:OnCharacterDied() end
 
 function PlayerClass:UpdateCharacter(character: Model?) end
 
-function PlayerClass:Update(deltaTime: number)
-	self.lean:Update(deltaTime)
-end
+function PlayerClass:Update(deltaTime: number) end
 
 function PlayerClass:Destroy()
+	self.lean:Destroy()
 	self.janitor:Destroy()
 	self.janitor = nil
 end

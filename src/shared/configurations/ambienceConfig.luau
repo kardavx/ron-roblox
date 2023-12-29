@@ -1,0 +1,3 @@
+return {
+	FadeTime = 1,
+}

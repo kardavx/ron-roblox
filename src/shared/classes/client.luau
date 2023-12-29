@@ -11,6 +11,7 @@ local Glock17Config = require(ReplicatedStorage.Shared.configurations.weapons.Gl
 local MK18Config = require(ReplicatedStorage.Shared.configurations.weapons.MK18Config)
 local MK18TacConfig = require(ReplicatedStorage.Shared.configurations.weapons.MK18TacConfig)
 local SigSauerConfig = require(ReplicatedStorage.Shared.configurations.weapons.SigSauerConfig)
+local Ambience = require(ReplicatedStorage.Shared.module.Ambience)
 local BodyVisibility = require(ReplicatedStorage.Shared.module.BodyVisibility)
 local ClassBag = require(ReplicatedStorage.Shared.module.ClassBag)
 local ClientPlayerData = require(ReplicatedStorage.Shared.module.ClientPlayerData)
@@ -19,6 +20,7 @@ local DynamicReverb = require(ReplicatedStorage.Shared.module.DynamicReverb)
 local Gloves = require(ReplicatedStorage.Shared.module.Gloves)
 local HumanoidStateAdjuster = require(ReplicatedStorage.Shared.module.HumanoidStateAdjuster)
 local Interace = require(ReplicatedStorage.Shared.module.Interace)
+local Lean = require(ReplicatedStorage.Shared.module.Lean)
 local Projectors = require(ReplicatedStorage.Shared.module.Projectors)
 local HumanoidStateAdjuster = require(ReplicatedStorage.Shared.module.HumanoidStateAdjuster)
 local SignalBag = require(ReplicatedStorage.Shared.module.SignalBag)
@@ -253,6 +255,7 @@ function Client:Update(deltaTime: number)
 	self.freelook:Update(deltaTime)
 	BodyVisibility:Update(deltaTime)
 	DynamicReverb:Update(deltaTime)
+	Ambience:Update(deltaTime)
 
 	if self.movement then
 		self.movement:Update(deltaTime)
@@ -282,6 +285,7 @@ end
 
 function Client:UpdatePhysics(deltaTime: number)
 	self.camera:UpdatePhysics(deltaTime)
+	Lean:Update(deltaTime)
 end
 
 function Client:PostUpdate(deltaTime: number)

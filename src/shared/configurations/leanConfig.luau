@@ -1,6 +1,6 @@
 return {
 	leanAngularAmount = 20,
-	leanSpeed = 10,
+	leanSpeed = 6,
 	baseC0 = CFrame.new(
 		0,
 		-0.149999857,
