@@ -3,6 +3,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 local NpcConfigs = ServerScriptService.configurations.npcs
+local ServerPlayerData = require(ServerScriptService.module.ServerPlayerData)
 local Animator = require(ReplicatedStorage.Shared.classes.Animator)
 local PathFinder = require(ReplicatedStorage.Shared.classes.PathFinder)
 
@@ -167,9 +168,14 @@ function NPC:Arrest(player: Player): boolean
 	local playerHumanoid = playerCharacter and playerCharacter:FindFirstChildWhichIsA("Humanoid")
 	local playerAnimator = playerHumanoid and playerHumanoid:FindFirstChildWhichIsA("Animator")
 	local playerHRP = playerCharacter and playerCharacter:FindFirstChild("HumanoidRootPart")
+	local playerData = ServerPlayerData.GetPlayerProfile(player)
+
+	playerData.producer.addWeaponHider("Arresting")
+
 	if not playerAnimator or not playerHRP then
 		return false
 	end
+
 	local hrp = self:GetPart("HumanoidRootPart")
 	if not hrp then
 		return false
@@ -189,6 +195,7 @@ function NPC:Arrest(player: Player): boolean
 
 	animationTrack.Stopped:Once(function()
 		playerHRP.Anchored = false
+		playerData.producer.removeWeaponHider("Arresting")
 	end)
 
 	self:PlayAnimation("Arrest")

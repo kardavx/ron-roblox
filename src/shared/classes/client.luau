@@ -126,7 +126,7 @@ end
 
 function Client:UpdateCharacter(character)
 	self.camera:UpdateCharacter(character)
-	BodyVisibility:UpdateCharacter(character)
+	BodyVisibility:UpdateCharacter(character, self.loadout:IsWeaponEquipped())
 	Interace:UpdateCharacter(character)
 	self.loadout:UpdateCharacter(character)
 

@@ -19,6 +19,7 @@ export type Class = {
 	BindInput: (self: Object) -> (),
 	ApplyLoadout: (self: Object) -> (),
 	UpdateForcedUnequip: (self: Object) -> (),
+	IsWeaponEquipped: (self: Object) -> boolean,
 } & GameTypes.ClientMethods<Object>
 
 export type Object = typeof(setmetatable(
@@ -63,15 +64,27 @@ function Loadout.new()
 		self:ApplyLoadout()
 	end)
 
-	ClientPlayerData.clientProducer:subscribe(function(state)
-		return state.weaponHiders
-	end, function(newValue: { string })
-		self.weaponForceHide = #newValue > 0
+	task.spawn(function()
+		if not ClientPlayerData.serverProfile then
+			repeat
+				task.wait()
+			until ClientPlayerData.serverProfile
+		end
+
+		ClientPlayerData.serverProfile:subscribe(function(state)
+			return state.weaponHiders
+		end, function(newValue: { string })
+			self.weaponForceHide = #newValue > 0
+		end)
 	end)
 
 	self:BindInput()
 
 	return self
+end
+
+function Loadout:IsWeaponEquipped()
+	return self.currentWeapon ~= nil
 end
 
 function Loadout:BindInput()

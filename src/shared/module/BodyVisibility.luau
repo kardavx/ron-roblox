@@ -8,10 +8,18 @@ type LocalProperties = {
 
 local BodyVisibility = {} :: GameTypes.ClientMethods<LocalProperties>
 
-local allowedBodyParts = {
+local allowedBodyPartsWithWeapon = {
 	"Left Leg",
 	"Right Leg",
 	"Torso",
+}
+
+local allowedBodyPartsWithoutWeapon = {
+	"Left Leg",
+	"Right Leg",
+	"Torso",
+	"Right Arm",
+	"Left Arm",
 }
 
 local allowedAccesories = {
@@ -26,17 +34,19 @@ function BodyVisibility:UpdateCharacter(character)
 	self.character = character
 end
 
-function BodyVisibility:Update(deltaTime: number)
+function BodyVisibility:Update(deltaTime: number, isWeaponEquipped: boolean)
 	if not self.character then
 		return
 	end
+
+	local bodyPartsTable = isWeaponEquipped and allowedBodyPartsWithWeapon or allowedBodyPartsWithoutWeapon
 
 	for _, descendant: Instance in self.character:GetDescendants() do
 		if not descendant:IsA("BasePart") then
 			continue
 		end
 
-		if table.find(allowedBodyParts, descendant.Name) then
+		if table.find(bodyPartsTable, descendant.Name) then
 			descendant.LocalTransparencyModifier = 0
 		else
 			if descendant.Name == "Handle" then
