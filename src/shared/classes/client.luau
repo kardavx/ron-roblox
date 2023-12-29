@@ -22,6 +22,7 @@ local HumanoidStateAdjuster = require(ReplicatedStorage.Shared.module.HumanoidSt
 local Interace = require(ReplicatedStorage.Shared.module.Interace)
 local Lean = require(ReplicatedStorage.Shared.module.Lean)
 local Projectors = require(ReplicatedStorage.Shared.module.Projectors)
+local Scream = require(ReplicatedStorage.Shared.module.Scream)
 local HumanoidStateAdjuster = require(ReplicatedStorage.Shared.module.HumanoidStateAdjuster)
 local SignalBag = require(ReplicatedStorage.Shared.module.SignalBag)
 local Watch = require(ReplicatedStorage.Shared.module.Watch)
@@ -104,6 +105,10 @@ function Client.new()
 		LeanRight = {
 			keyCode = Enum.KeyCode.E,
 			inputType = "Hold",
+		},
+		Scream = {
+			keyCode = Enum.KeyCode.F,
+			inputType = "Click",
 		},
 	})
 

@@ -25,6 +25,8 @@ function Obstruction.new(): RenderPipelineTypes.NodeObject
 	self.params = RaycastParams.new()
 	self.params.FilterType = Enum.RaycastFilterType.Exclude
 	self.obstructionOffsetMultiplier = -1
+	self.lastViewmodel = ""
+	self.lastMaxDistance = 0
 
 	return self
 end
@@ -37,22 +39,27 @@ function Obstruction:PreUpdate(
 	local obstructionOffset = self.camera.rawCameraCFrame.LookVector * self.obstructionOffsetMultiplier
 
 	local origin = self.camera.rawCameraCFrame.Position + obstructionOffset
-	local target = (viewmodel.weapon.Muzzle.CFrame * viewmodel.HumanoidRootPart.Handle.Transform:Inverse()).Position
+	local target = (viewmodel.weapon.Muzzle.CFrame).Position
 	local direction = target - origin
 	self.params.FilterDescendantsInstances = { LocalPlayer.Character, CurrentCamera }
 
 	local maxDistance = math.round((origin - target).Magnitude)
 
+	if self.lastViewmodel ~= viewmodel.Name or maxDistance > self.lastMaxDistance then
+		self.lastViewmodel = viewmodel.Name
+		self.lastMaxDistance = maxDistance
+	end
+
 	local raycastResult = workspace:Blockcast(
 		self.camera.rawCameraCFrame + obstructionOffset,
 		Vector3.new(1, 1, 0.1),
-		self.camera.rawCameraCFrame.LookVector * maxDistance,
+		self.camera.rawCameraCFrame.LookVector * self.lastMaxDistance,
 		self.params
 	)
 
-	if raycastResult and maxDistance - raycastResult.Distance >= self.desiredObstructionAmount - 0.5 then
+	if raycastResult and self.lastMaxDistance - raycastResult.Distance >= self.desiredObstructionAmount - 0.5 then
 		self.desiredObstructionAmount =
-			lerpNumber(self.desiredObstructionAmount, maxDistance - raycastResult.Distance, 12 * deltaTime)
+			lerpNumber(self.desiredObstructionAmount, self.lastMaxDistance - raycastResult.Distance, 12 * deltaTime)
 	else
 		self.desiredObstructionAmount = lerpNumber(self.desiredObstructionAmount, 0, 8 * deltaTime)
 	end

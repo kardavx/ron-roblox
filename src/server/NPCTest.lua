@@ -1,20 +1,12 @@
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local Civilian = require(ServerScriptService.classes.Civilian)
-local NPC = require(ServerScriptService.classes.NPC)
-local civilian = Civilian.new()
-civilian:Spawn("Tyler", workspace:WaitForChild("Start").CFrame)
+local NPCManager = require(ServerScriptService.classes.NPCManager)
+local Scream = require(ServerScriptService.module.Scream)
+NPCManager.new()
 
-civilian:MoveTo(workspace:WaitForChild("Goal"))
+local npc = NPCManager:CreateNPC("Civilian", "Tyler", workspace:WaitForChild("Start").CFrame)
 
-task.wait(8)
-
-civilian:HandsUp()
-civilian:StopMoving()
-
-task.wait(3)
-
-civilian:OnKnees()
+npc:MoveTo(workspace:WaitForChild("Goal"))
 
 local NPCTest = {}
 
