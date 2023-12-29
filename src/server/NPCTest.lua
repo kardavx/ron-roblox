@@ -6,7 +6,7 @@ NPCManager.new()
 
 local npc = NPCManager:CreateNPC("Civilian", "Tyler", workspace:WaitForChild("Start").CFrame)
 
-npc:MoveTo(workspace:WaitForChild("Goal"))
+npc:MoveTo(workspace.Goal)
 
 local NPCTest = {}
 
