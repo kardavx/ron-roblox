@@ -1,5 +1,6 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
 local leanConfig = require(ReplicatedStorage.Shared.configurations.leanConfig)
 local spawnWithParams = require(ReplicatedStorage.Shared.util.spawnWithParams)

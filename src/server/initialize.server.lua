@@ -1,4 +1,4 @@
-local ServerScriptService = game:GetService("ServerScriptService")
+print("initialize started")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -6,10 +6,14 @@ local ServerScriptService = game:GetService("ServerScriptService")
 
 local Maid = require(ReplicatedStorage.package.Maid)
 local playerClass = require(ServerScriptService.classes.player)
+
+print("things fetched")
 -- require(ServerScriptService.NPCTest)
 
 ---// inicjalizuje serverDate, nie pytaj czemu w taki sposob - shibe to wymyslil XD
+print("yield start")
 require(ServerScriptService.module.ServerPlayerData)
+print("yield end")
 
 local playerObjects: { [string]: playerClass.Object } = {}
 local playerJanitors: { [string]: Maid.Maid } = {}
@@ -57,9 +61,9 @@ Players.PlayerAdded:Connect(function(player: Player)
 	playerAdded(player)
 end)
 
--- for _, player in Players:GetPlayers() do
--- 	playerAdded(player)
--- end
+for _, player in Players:GetPlayers() do
+	playerAdded(player)
+end
 
 Players.PlayerRemoving:Connect(function(player: Player)
 	local playerJanitor = playerJanitors[player.Name] :: Maid.Maid
