@@ -47,8 +47,20 @@ function Civilian:ScreamOn(...)
 	return self.npc:ScreamOn(...)
 end
 
+function Civilian:Arrest(...)
+	return self.npc:Arrest(...)
+end
+
 function Civilian:GetPivot(...)
 	return self.npc:GetPivot(...)
+end
+
+function Civilian:IsInFov(...)
+	return self.npc:IsInFov(...)
+end
+
+function Civilian:IsSurrended(...)
+	return self.npc:IsSurrended(...)
 end
 
 function Civilian:Destroy() end
