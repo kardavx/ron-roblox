@@ -39,12 +39,14 @@ function BodyVisibility:Update(deltaTime: number, isWeaponEquipped: boolean)
 		return
 	end
 
-	local bodyPartsTable = isWeaponEquipped and allowedBodyPartsWithWeapon or allowedBodyPartsWithoutWeapon
+	local bodyPartsTable = (isWeaponEquipped == true and allowedBodyPartsWithWeapon or allowedBodyPartsWithoutWeapon)
 
 	for _, descendant: Instance in self.character:GetDescendants() do
 		if not descendant:IsA("BasePart") then
 			continue
 		end
+
+		descendant.LocalTransparencyModifier = 1
 
 		if table.find(bodyPartsTable, descendant.Name) then
 			descendant.LocalTransparencyModifier = 0

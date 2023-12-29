@@ -74,7 +74,8 @@ function Loadout.new()
 		ClientPlayerData.serverProfile:subscribe(function(state)
 			return state.weaponHiders
 		end, function(newValue: { string })
-			self.weaponForceHide = #newValue > 0
+			print(#newValue > 0)
+			self.weaponForceHide = (#newValue > 0)
 		end)
 	end)
 
@@ -84,7 +85,7 @@ function Loadout.new()
 end
 
 function Loadout:IsWeaponEquipped()
-	return self.currentWeapon ~= nil
+	return (self.currentWeapon ~= nil)
 end
 
 function Loadout:BindInput()
@@ -101,7 +102,9 @@ function Loadout:BindInput()
 			return
 		else
 			self.weaponChangeQueued = true
-			self.weapons[self.currentWeapon]:Unequip():await()
+			if self.currentWeapon then
+				self.weapons[self.currentWeapon]:Unequip():await()
+			end
 
 			self.currentWeapon = "Secondary"
 			self.weapons[self.currentWeapon]:Equip():await()
@@ -123,7 +126,9 @@ function Loadout:BindInput()
 			return
 		else
 			self.weaponChangeQueued = true
-			self.weapons[self.currentWeapon]:Unequip():await()
+			if self.currentWeapon then
+				self.weapons[self.currentWeapon]:Unequip():await()
+			end
 
 			self.currentWeapon = "Primary"
 			self.weapons[self.currentWeapon]:Equip():await()

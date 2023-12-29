@@ -24,4 +24,4 @@ Bridgenet2.ReferenceBridge("OnArrest"):Connect(function(player, character)
 	NPCManager:OnArrest(player, character)
 end)
 
-return {}
+return table.freeze({})

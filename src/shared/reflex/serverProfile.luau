@@ -36,7 +36,7 @@ function CreateProducer(initialState: State): Producer
 			return state
 		end,
 		addWeaponHider = function(oldState: State, hiderId: string): State
-			if table.find(oldState, hiderId) then
+			if table.find(oldState.weaponHiders, hiderId) then
 				return oldState
 			end
 
@@ -47,7 +47,7 @@ function CreateProducer(initialState: State): Producer
 			return state
 		end,
 		removeWeaponHider = function(oldState: State, hiderId: string): State
-			local hiderPosition = table.find(oldState, hiderId)
+			local hiderPosition = table.find(oldState.weaponHiders, hiderId)
 			if not hiderPosition then
 				return oldState
 			end

@@ -20,6 +20,8 @@ local Watch = require(ReplicatedStorage.Shared.module.Watch)
 local GameTypes = require(ReplicatedStorage.Shared.types.GameTypes)
 local chooseRandomFromArray = require(ReplicatedStorage.Shared.util.chooseRandomFromArray)
 
+require(ReplicatedStorage.Shared.module.Scream)
+
 local possibleGloves = { "bulky", "None" }
 local possibleWatches = { "silver", "None" }
 
@@ -126,7 +128,7 @@ end
 
 function Client:UpdateCharacter(character)
 	self.camera:UpdateCharacter(character)
-	BodyVisibility:UpdateCharacter(character, self.loadout:IsWeaponEquipped())
+	BodyVisibility:UpdateCharacter(character)
 	Interace:UpdateCharacter(character)
 	self.loadout:UpdateCharacter(character)
 
@@ -157,7 +159,7 @@ end
 function Client:Update(deltaTime: number)
 	self.camera:Update(deltaTime)
 	self.freelook:Update(deltaTime)
-	BodyVisibility:Update(deltaTime)
+	BodyVisibility:Update(deltaTime, self.loadout:IsWeaponEquipped())
 	DynamicReverb:Update(deltaTime)
 	Ambience:Update(deltaTime)
 	self.loadout:Update(deltaTime)

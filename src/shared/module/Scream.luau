@@ -4,6 +4,7 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
 local input = require(ReplicatedStorage.Shared.classes.input)
+local SignalBag = require(ReplicatedStorage.Shared.module.SignalBag)
 local Bridgenet2 = require(ReplicatedStorage.package.Bridgenet2)
 
 local localPlayer = Players.LocalPlayer
@@ -20,6 +21,7 @@ input.SubscribeToInput("Arrest", function()
 end)
 
 input.SubscribeToInput("Scream", function()
+	SignalBag:Fire("OnScream")
 	Bridgenet2.ClientBridge("OnScream"):Fire()
 end)
 
@@ -44,4 +46,4 @@ RunService.PreRender:Connect(function()
 	Bridgenet2.ClientBridge("OnSurrender"):Fire(character)
 end)
 
-return {}
+return table.freeze({})
