@@ -19,6 +19,9 @@ return setmetatable(NPCSConfig, {
 				OnKnees = {
 					{ Id = 15782182058 },
 				},
+				Arrest = {
+					{ Id = 15786781472 },
+				},
 			},
 		}
 	end,

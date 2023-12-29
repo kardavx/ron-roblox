@@ -158,8 +158,57 @@ function NPC:ScreamOn(): ()
 	self:OnKnees()
 end
 
+function NPC:Arrest(player: Player): boolean
+	if self.isArrested then
+		return false
+	end
+
+	local playerCharacter = player.Character
+	local playerHumanoid = playerCharacter and playerCharacter:FindFirstChildWhichIsA("Humanoid")
+	local playerAnimator = playerHumanoid and playerHumanoid:FindFirstChildWhichIsA("Animator")
+	local playerHRP = playerCharacter and playerCharacter:FindFirstChild("HumanoidRootPart")
+	if not playerAnimator or not playerHRP then
+		return false
+	end
+	local hrp = self:GetPart("HumanoidRootPart")
+	if not hrp then
+		return false
+	end
+
+	self.isArrested = true
+
+	local animation = Instance.new("Animation")
+	animation.AnimationId = "rbxassetid://15786953347"
+	local animationTrack = playerAnimator:LoadAnimation(animation)
+
+	hrp.Anchored = true
+	playerHRP.Anchored = true
+	local playerPivot = playerCharacter:GetPivot()
+
+	self.character:PivotTo(playerPivot + playerPivot.LookVector * 2)
+
+	animationTrack.Stopped:Once(function()
+		playerHRP.Anchored = false
+	end)
+
+	self:PlayAnimation("Arrest")
+	animationTrack:Play()
+	return true
+end
+
 function NPC:GetCharacter(): Model | nil
 	return self.character
+end
+
+function NPC:IsInFov(position: Vector3)
+	local pivot = self:GetPivot("Head")
+	if not pivot then
+		return false
+	end
+
+	local direction = (position - pivot.Position).Unit
+
+	return direction:Dot(pivot.LookVector) >= 0.5
 end
 
 function NPC:Spawn(modelName: string, spawnCFrame: CFrame): ()
@@ -174,12 +223,22 @@ function NPC:Spawn(modelName: string, spawnCFrame: CFrame): ()
 	self.pathFinder = PathFinder.new(self.character)
 end
 
-function NPC:GetPivot()
+function NPC:GetPivot(partName: string | nil)
 	if not self.character then
 		return
 	end
 
-	return self.character:GetPivot()
+	local part = partName and self.character:FindFirstChild(partName)
+
+	return part and part:GetPivot() or self.character:GetPivot()
+end
+
+function NPC:GetPart(partName: string | nil): Instance | nil
+	return self.character and self.character:FindFirstChild(partName)
+end
+
+function NPC:IsSurrended()
+	return self.areHandsUp and self.isOnKnees
 end
 
 function NPC:Destroy(): ()

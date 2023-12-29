@@ -110,6 +110,10 @@ function Client.new()
 			keyCode = Enum.KeyCode.F,
 			inputType = "Click",
 		},
+		Arrest = {
+			keyCode = Enum.KeyCode.G,
+			inputType = "Click",
+		},
 	})
 
 	ClassBag:ReplaceBag({
