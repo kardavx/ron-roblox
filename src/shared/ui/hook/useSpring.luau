@@ -33,6 +33,7 @@ end
 
 type Props = {
 	initialValue: number?,
+	speed: number?,
 }
 
 return function(props: Props, deps: any)
@@ -45,7 +46,7 @@ return function(props: Props, deps: any)
 	React.useEffect(function()
 		local connection = RunService.RenderStepped:Connect(function()
 			local newPosition, newVelocity =
-				serp(position:getValue(), velocity:getValue(), target:getValue(), 20, 20, 0.001, 0.05)
+				serp(position:getValue(), velocity:getValue(), target:getValue(), props.speed or 20, 20, 0.001, 0.05)
 
 			setPosition(newPosition)
 			setVelocity(newVelocity)

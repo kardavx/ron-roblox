@@ -135,6 +135,13 @@ return {
 				Parent = hinge,
 			})
 
+			-- 9116546594
+			local soundBreached = createInstance("Sound", {
+				SoundId = "rbxassetid://9116546594",
+				Volume = 1,
+				Parent = hinge,
+			})
+
 			kickPrompt = createInstance("ProximityPrompt", {
 				ActionText = "Kick",
 				ObjectText = "Door",
@@ -175,8 +182,6 @@ return {
 				task.delay(kickAnimationTrack.Length, function()
 					local kickSucceeded = (doorLocked == false) and true or randomBoolean(3)
 
-					print(kickSucceeded)
-
 					doorKicked = false
 					playerCharacter.PrimaryPart.Anchored = false
 					playerData.producer.removeWeaponHider("KickingDoor")
@@ -188,6 +193,7 @@ return {
 							doorLocked = false
 						end
 
+						soundBreached:Play()
 						instance:SetAttribute("lerpSpeed", kickLerpSpeed)
 						instance:SetAttribute("targetRotation", getActualAngle(instance, playerCharacter, kickAngle))
 					end
@@ -200,6 +206,7 @@ return {
 
 			doorJanitor:GiveTask(sound)
 			doorJanitor:GiveTask(kickPrompt)
+			doorJanitor:GiveTask(soundBreached)
 		end
 
 		return function()

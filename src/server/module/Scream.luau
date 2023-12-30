@@ -11,7 +11,19 @@ Bridgenet2.ReferenceBridge("OnScream"):Connect(function(player: Player)
 		return
 	end
 
-	SoundService["FBI OPEN UP"]:Play()
+	task.spawn(function()
+		local ScreamCloned = SoundService["FBI OPEN UP"]:Clone() :: Sound
+		ScreamCloned.Parent = character
+		ScreamCloned:SetAttribute("dialogId", "SWAT_COOPERATE_01")
+		ScreamCloned:AddTag("voiceline")
+		repeat
+			task.wait()
+		until ScreamCloned.TimeLength > 0
+		ScreamCloned:Play()
+		ScreamCloned.Ended:Once(function()
+			ScreamCloned:Destroy()
+		end)
+	end)
 
 	NPCManager:OnScream(player, character:GetPivot())
 end)

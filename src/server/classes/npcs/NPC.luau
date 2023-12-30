@@ -1,11 +1,13 @@
 local ReflectionService = game:GetService("ReflectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
+local TweenService = game:GetService("TweenService")
 
 local NpcConfigs = ServerScriptService.configurations.npcs
 local ServerPlayerData = require(ServerScriptService.module.ServerPlayerData)
 local Animator = require(ReplicatedStorage.Shared.classes.Animator)
 local PathFinder = require(ReplicatedStorage.Shared.classes.PathFinder)
+local SingleUseTween = require(ReplicatedStorage.Shared.util.SingleUseTween)
 
 local prefabs = ReplicatedStorage:WaitForChild("Prefabs")
 
@@ -100,8 +102,6 @@ function NPC:SetState(state: string): boolean
 	if self:GetAttribute("State") == state then
 		return false
 	end
-
-	local oldState = self.state
 
 	self:PlayStateAnimation(state)
 	self:SetAttribute("State", state)
@@ -211,7 +211,11 @@ function NPC:Arrest(player: Player): boolean
 	playerHRP.Anchored = true
 	local playerPivot = playerCharacter:GetPivot()
 
-	self.character:PivotTo(playerPivot + playerPivot.LookVector * 2)
+	SingleUseTween(
+		self.character.PrimaryPart,
+		TweenInfo.new(0.5, Enum.EasingStyle.Linear),
+		{ CFrame = playerPivot + playerPivot.LookVector * 3 }
+	)
 
 	animationTrack.Stopped:Once(function()
 		playerHRP.Anchored = false
