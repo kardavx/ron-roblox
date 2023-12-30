@@ -4,6 +4,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local promptConfig = require(ReplicatedStorage.Shared.configurations.promptConfig)
 local ServerPlayerData = require(ServerScriptService.module.ServerPlayerData)
 local createInstance = require(ReplicatedStorage.Shared.util.createInstance)
+local randomBoolean = require(ReplicatedStorage.Shared.util.randomBoolean)
 local Maid = require(ReplicatedStorage.package.Maid)
 
 local openAngle = 90
@@ -58,6 +59,7 @@ return {
 		instance:SetAttribute("lerpSpeed", 0)
 
 		local doorKicked = false
+		local doorLocked = randomBoolean()
 
 		local openContainer = instance:FindFirstChild("Open")
 		local peekContainer = instance:FindFirstChild("Peek")
@@ -82,7 +84,7 @@ return {
 			})
 
 			doorJanitor:GiveTask(openPrompt.Triggered:Connect(function(player: Player)
-				if doorKicked or not player.Character then
+				if doorLocked or doorKicked or not player.Character then
 					return
 				end
 
@@ -110,7 +112,7 @@ return {
 			}) :: ProximityPrompt
 
 			doorJanitor:GiveTask(peekPrompt.Triggered:Connect(function(player: Player)
-				if doorKicked or not player.Character then
+				if doorLocked or doorKicked or not player.Character then
 					return
 				end
 
@@ -171,13 +173,24 @@ return {
 
 				kickAnimationTrack:Play()
 				task.delay(kickAnimationTrack.Length, function()
+					local kickSucceeded = (doorLocked == false) and true or randomBoolean(3)
+
+					print(kickSucceeded)
+
 					doorKicked = false
 					playerCharacter.PrimaryPart.Anchored = false
-					instance:SetAttribute("lerpSpeed", kickLerpSpeed)
-					sound:Play()
-					instance:SetAttribute("targetRotation", getActualAngle(instance, playerCharacter, kickAngle))
 					playerData.producer.removeWeaponHider("KickingDoor")
 					playerData.producer.removeMouseLocker("KickingDoor")
+					sound:Play()
+
+					if kickSucceeded then
+						if doorLocked then
+							doorLocked = false
+						end
+
+						instance:SetAttribute("lerpSpeed", kickLerpSpeed)
+						instance:SetAttribute("targetRotation", getActualAngle(instance, playerCharacter, kickAngle))
+					end
 				end)
 
 				kickAnimationTrack.Stopped:Once(function()
