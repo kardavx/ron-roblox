@@ -1,5 +1,7 @@
 local PathfindingService = game:GetService("PathfindingService")
 local RunService = game:GetService("RunService")
+local ServerScriptService = game:GetService("ServerScriptService")
+
 local TextureGenerationMeshHandler = game:GetService("TextureGenerationMeshHandler")
 
 local PathFinder = {}
@@ -65,7 +67,9 @@ function PathFinder:FollowWaypoints()
 	end
 
 	if self.humanoid then
-		self.humanoid:MoveTo(self.waypoints[self.currentWaypoint].Position)
+		local waypoint = self.waypoints[self.currentWaypoint]
+
+		self.humanoid:MoveTo(waypoint.Position)
 	else
 		self:MoveToFinished()
 	end
@@ -111,7 +115,9 @@ function PathFinder.new(agent: Model, agentInfo: { any } | nil)
 	local self = setmetatable({}, PathFinder)
 	self.agent = agent
 	self.humanoid = self.agent:FindFirstChildWhichIsA("Humanoid")
-	self.path = PathfindingService:CreatePath(agentInfo)
+	self.path = PathfindingService:CreatePath({
+		Costs = { DangerZone = math.huge },
+	})
 	self.blockRetry = 0
 
 	self.events = {

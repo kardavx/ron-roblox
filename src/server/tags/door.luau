@@ -64,6 +64,8 @@ return {
 		local openContainer = instance:FindFirstChild("Open")
 		local peekContainer = instance:FindFirstChild("Peek")
 		local kickContainer = instance:FindFirstChild("Kick")
+		local doorContainer = instance:FindFirstChild("Door")
+		local pathfindingModifier = instance:FindFirstChildWhichIsA("PathfindingModifier", true)
 
 		local peekPrompt
 		local kickPrompt
@@ -186,6 +188,9 @@ return {
 					if kickSucceeded then
 						if doorLocked then
 							doorLocked = false
+							doorContainer.CanCollide = false
+							doorContainer.CanQuery = false
+							pathfindingModifier.PassThrough = true
 						end
 
 						instance:SetAttribute("lerpSpeed", kickLerpSpeed)

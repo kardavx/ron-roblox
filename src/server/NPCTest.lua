@@ -4,9 +4,11 @@ local NPCManager = require(ServerScriptService.classes.NPCManager)
 local Scream = require(ServerScriptService.module.Scream)
 NPCManager.new()
 
-local npc = NPCManager:CreateNPC("Civilian", "Tyler", workspace:WaitForChild("Start").CFrame)
+task.delay(3, function()
+	local npc = NPCManager:CreateNPC("Civilian", "Tonya", workspace:WaitForChild("Start").CFrame)
 
-npc:MoveTo(workspace.Goal)
+	npc:MoveTo(workspace.Goal)
+end)
 
 local NPCTest = {}
 

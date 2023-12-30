@@ -16,10 +16,11 @@ NPC.__index = NPC
 function NPC.new(className: string, intimidation: number | nil, aggressiveness: number | nil)
 	local self = setmetatable({}, NPC)
 	self.className = className
-	self.intimidation = intimidation or math.random()
-	self.aggressiveness = aggressiveness or math.random()
+	self:SetAttribute("Intimidation", math.random())
+	self:SetAttribute("Aggressiveness", math.random())
 	self.state = "Idle"
 
+	self.lastDestinations = {}
 	self.connections = {}
 
 	table.insert(NPCs, self)
@@ -27,6 +28,10 @@ function NPC.new(className: string, intimidation: number | nil, aggressiveness: 
 end
 
 function NPC:MoveTo(destination: Vector3): ()
+	if self:IsMoving() then
+		self:StopMoving()
+	end
+
 	if self.connections.pathReached then
 		self.connections.pathReached:Disconnect()
 	end
@@ -34,6 +39,14 @@ function NPC:MoveTo(destination: Vector3): ()
 	self:SetState("Run")
 
 	self.connections.pathReached = self.pathFinder.events.moveToFinished.Event:Once(function()
+		if self:GetAttribute("IsRunningAway") then
+			if os.clock() - self.runAwayStart < self.config.Durations.RunAway then
+				return self:MoveTo(self:GetEscapeDestination(nil, 10))
+			else
+				self:StopRunningAway()
+			end
+		end
+
 		local state = self:GetState()
 		if state == "Run" or state == "Walk" then
 			self:SetState("Idle")
@@ -129,6 +142,10 @@ function NPC:HandsUp(): boolean
 		return false
 	end
 
+	if self:GetAttribute("IsRunningAway") then
+		return false
+	end
+
 	self:SetAttribute("AreHandsUp", true)
 	self:PlayAnimation("HandsUp")
 	return true
@@ -165,17 +182,133 @@ function NPC:OffKnees()
 end
 
 function NPC:Surrender()
+	if self:GetAttribute("IsRunningAway") then
+		return false
+	end
+
 	self:StopMoving()
+
 	return self:HandsUp()
 end
 
-function NPC:ScreamOn()
+function NPC:AreLevelRequirmentsMet(name: string)
+	for attribute, requirments in self.config.LevelRequirments[name] do
+		local level = self:GetAttribute(attribute)
+
+		for sign, requirment in requirments do
+			if sign == "<" and level >= requirment then
+				return false
+			elseif sign == ">" and level <= requirment then
+				return false
+			elseif sign == "==" and level ~= requirment then
+				return false
+			elseif sign == "<=" and level > requirment then
+				return false
+			elseif sign == ">=" and level < requirment then
+				return false
+			end
+		end
+	end
+
+	return true
+end
+
+function NPC:AdjustLevel(name: string, delta: number, limit: number)
+	local level = self:GetAttribute(name)
+	delta = limit and math.min(level + delta, limit) or delta
+	return self:SetAttribute(name, level + delta)
+end
+
+function NPC:ScreamOn(player: Player, pivot: CFrame)
+	if
+		not self:GetAttribute("AreHandsUp")
+		and not self:GetAttribute("IsRunningAway")
+		and self:AreLevelRequirmentsMet("RunAway")
+	then
+		return self:RunAway(pivot)
+	end
+
 	if not self:GetAttribute("AreHandsUp") then
+		if not self:AreLevelRequirmentsMet("HandsUp") then
+			self:AdjustLevel("Intimidation", math.random(), 0.5)
+			return false
+		end
+
 		self:StopMoving()
 		return self:HandsUp()
 	end
 
+	if not self:AreLevelRequirmentsMet("HandsUp") then
+		self:AdjustLevel("Intimidation", math.random(), 0.75)
+		return false
+	end
+
 	return self:OnKnees()
+end
+
+function NPC:GetEscapeDestination(pivot: CFrame, minDistance: number)
+	local destinations = workspace.Path:GetChildren()
+	local nearestDist, nearestDestination
+
+	if #destinations == #self.lastDestinations then
+		table.clear(self.lastDestinations)
+	end
+
+	for _, destination in destinations do
+		local destCF = destination.CFrame
+
+		if pivot then
+			if self:IsInFov(destCF.Position, pivot) then
+				table.insert(self.lastDestinations, destination)
+				return destination
+			end
+		end
+		local pivotPos = pivot and pivot.Position or self:GetPivot().Position
+		local dist = (pivotPos - destCF.Position).Magnitude
+
+		if not nearestDist or dist < nearestDist then
+			if minDistance and dist < minDistance then
+				continue
+			end
+
+			if table.find(self.lastDestinations, destination) then
+				continue
+			end
+
+			nearestDist = dist
+			nearestDestination = destination
+		end
+	end
+
+	table.insert(self.lastDestinations, nearestDestination)
+	return nearestDestination
+end
+
+function NPC:RunAway(pivot: CFrame)
+	if self:GetAttribute("IsRunningAway") then
+		return false
+	end
+	self.lastDestinations = {}
+	self.runAwayStart = os.clock()
+
+	self:SetAttribute("IsRunningAway", true)
+	local destination = self:GetEscapeDestination(pivot)
+
+	if destination then
+		self:MoveTo(destination.CFrame.Position)
+	end
+
+	return true
+end
+
+function NPC:StopRunningAway()
+	if not self:GetAttribute("IsRunningAway") then
+		return false
+	end
+
+	self:SetAttribute("IsRunningAway", false)
+	self:StopMoving()
+	return true
 end
 
 function NPC:Arrest(player: Player): boolean
@@ -228,8 +361,8 @@ function NPC:GetCharacter(): Model | nil
 	return self.character
 end
 
-function NPC:IsInFov(position: Vector3)
-	local pivot = self:GetPivot("Head")
+function NPC:IsInFov(position: Vector3, pivot: CFrame | nil)
+	local pivot = pivot or self:GetPivot("Head")
 	if not pivot then
 		return false
 	end
@@ -244,7 +377,7 @@ function NPC:Spawn(modelName: string, spawnCFrame: CFrame): ()
 	self.character.Parent = workspace
 	self.config = require(NpcConfigs[self.className])[modelName]
 	self.animator = Animator.new(self.character.Humanoid)
-	self.animator:LoadAnimations(self.config.animationsInfo)
+	self.animator:LoadAnimations(self.config.AnimationsInfo)
 
 	self.character:PivotTo(spawnCFrame)
 
