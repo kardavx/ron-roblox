@@ -6,6 +6,7 @@ local CurrentCamera = require(ReplicatedStorage.Shared.CurrentCamera)
 local cameraModifier = require(ReplicatedStorage.Shared.classes.camera.cameraModifier)
 local fovModifier = require(ReplicatedStorage.Shared.classes.camera.fovModifier)
 local cameraConfig = require(ReplicatedStorage.Shared.configurations.cameraConfig)
+local ClientPlayerData = require(ReplicatedStorage.Shared.module.ClientPlayerData)
 local GameTypes = require(ReplicatedStorage.Shared.types.GameTypes)
 
 export type Class = {
@@ -13,8 +14,8 @@ export type Class = {
 	new: () -> Object,
 	UpdateDelta: (self: Object, deltaTime: number) -> (),
 	Shove: (self: Object, shoveAmount: Vector2) -> (),
-	SetLocked: (self: Object, locked: boolean) -> (),
 	UpdateRotationDelta: (self: Object) -> (),
+	IsLocked: (self: Object) -> boolean,
 } & GameTypes.ClientMethods<Object>
 
 export type Object = typeof(setmetatable(
@@ -28,7 +29,6 @@ export type Object = typeof(setmetatable(
 		actualCameraCFrame: CFrame,
 		currentShove: Vector2,
 		targetShove: Vector2,
-		cameraLocked: boolean,
 	},
 	{} :: Class
 ))
@@ -47,7 +47,6 @@ function Camera.new()
 	self.actualCameraCFrame = CFrame.identity
 	self.targetShove = Vector2.zero
 	self.currentShove = Vector2.zero
-	self.cameraLocked = false
 	self.rotationDelta = Vector2.zero
 
 	return self
@@ -57,8 +56,16 @@ function Camera:UpdateCharacter(character)
 	self.character = character
 end
 
+function Camera:IsLocked()
+	if not ClientPlayerData.serverProfile then
+		return false
+	end
+
+	return #ClientPlayerData.serverProfile:getState().mouseLockers > 0
+end
+
 function Camera:UpdateDelta(deltaTime: number)
-	if self.cameraLocked then
+	if self:IsLocked() then
 		return
 	end
 
@@ -136,10 +143,6 @@ function Camera:Update(deltaTime: number)
 
 	self.actualCameraCFrame = self.rawCameraCFrame * cameraModifier.SumModifiers("Default")
 	CurrentCamera.CFrame = self.actualCameraCFrame
-end
-
-function Camera:SetLocked(locked: boolean)
-	self.cameraLocked = locked
 end
 
 function Camera:UpdatePhysics(deltaTime: number)

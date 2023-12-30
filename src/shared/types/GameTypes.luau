@@ -12,6 +12,7 @@ export type ClientMethods<self> = {
 	Update: (self: self, deltaTime: number) -> (),
 	PostUpdate: (self: self, deltaTime: number) -> (),
 	UpdatePhysics: (self: self, deltaTime: number) -> (),
+	UpdateAfterCharacter: (self: self, deltaTime: number) -> (),
 	UpdateCharacter: (self: self, character: Model?) -> (),
 }
 

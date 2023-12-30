@@ -1,12 +1,14 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
-local SignalBag = require(ReplicatedStorage.Shared.module.SignalBag)
-local createInstance = require(ReplicatedStorage.Shared.util.createInstance)
 local lerpNumber = require(ReplicatedStorage.Shared.util.lerpNumber)
 local Maid = require(ReplicatedStorage.package.Maid)
 
-local openAngle = -90
+local openAngle = 90
+
+local function isOpened(targetRotation: number): boolean
+	return math.abs(targetRotation) >= openAngle
+end
 
 return {
 	tagName = "door",
@@ -18,41 +20,43 @@ return {
 			until instance.PrimaryPart
 		end
 
-		local hinge = instance.PrimaryPart
-
 		local doorJanitor = Maid.new()
 
 		local basePivot = instance:GetPivot()
 		local currentRotation = 0
-		local targetRotation = 0
 
-		local prompt = createInstance("ProximityPrompt", {
-			ActionText = "Door",
-			ObjectText = "Open",
-			Parent = instance,
-		}) :: ProximityPrompt
+		local peekContainer = instance:FindFirstChild("Peek")
+		local kickContainer = instance:FindFirstChild("Kick")
 
-		local sound = createInstance("Sound", {
-			SoundId = "rbxassetid://192416578",
-			Parent = hinge,
-		})
+		local peekPrompt
+		local kickPrompt
 
-		prompt.Triggered:Connect(function()
-			local isOpened = targetRotation == openAngle
+		if peekContainer then
+			peekPrompt = peekContainer:WaitForChild("ProximityPrompt") :: ProximityPrompt
+		end
 
-			sound:Play()
-			SignalBag:Fire("Use")
-			targetRotation = isOpened and 0 or openAngle
-		end)
+		if kickContainer then
+			kickPrompt = kickContainer:WaitForChild("ProximityPrompt") :: ProximityPrompt
+		end
 
 		doorJanitor:GiveTask(RunService.RenderStepped:Connect(function(deltaTime: number)
-			currentRotation = lerpNumber(currentRotation, targetRotation, 6 * deltaTime)
+			local isOpened = isOpened(instance:GetAttribute("targetRotation"))
 
+			if peekPrompt then
+				peekPrompt.Enabled = not isOpened
+			end
+
+			if kickPrompt then
+				kickPrompt.Enabled = not isOpened
+			end
+
+			currentRotation = lerpNumber(
+				currentRotation,
+				instance:GetAttribute("targetRotation"),
+				instance:GetAttribute("lerpSpeed") * deltaTime
+			)
 			instance:PivotTo(basePivot * CFrame.Angles(0, math.rad(currentRotation), 0))
 		end))
-
-		doorJanitor:GiveTask(sound)
-		doorJanitor:GiveTask(prompt)
 
 		return function()
 			doorJanitor:Destroy()

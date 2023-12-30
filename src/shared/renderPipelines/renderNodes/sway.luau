@@ -35,7 +35,7 @@ function Sway:Update(deltaTime: number, currentCFrame: CFrame, viewmodel: Weapon
 				-math.abs(self.spring.Value.x) * 0.4
 			),
 		viewmodel.weapon.Handle.CFrame,
-		CFrame.Angles(self.spring.Value.x * 0.5, self.spring.Value.y, self.spring.Value.x * 2)
+		CFrame.Angles(-self.spring.Value.y, self.spring.Value.x, self.spring.Value.x * 2)
 	)
 end
 

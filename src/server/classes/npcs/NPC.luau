@@ -190,6 +190,7 @@ function NPC:Arrest(player: Player): boolean
 	local playerData = ServerPlayerData.GetPlayerProfile(player)
 
 	playerData.producer.addWeaponHider("Arresting")
+	playerData.producer.addMouseLocker("Arresting")
 
 	if not playerAnimator or not playerHRP then
 		return false
@@ -215,6 +216,7 @@ function NPC:Arrest(player: Player): boolean
 	animationTrack.Stopped:Once(function()
 		playerHRP.Anchored = false
 		playerData.producer.removeWeaponHider("Arresting")
+		playerData.producer.removeMouseLocker("Arresting")
 	end)
 
 	self:PlayAnimation("Arrest")

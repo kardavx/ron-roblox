@@ -1,10 +1,16 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
+local Gloves = require(ReplicatedStorage.Shared.module.Gloves)
+local Watch = require(ReplicatedStorage.Shared.module.Watch)
 local lean = require(ServerScriptService.classes.lean)
 local ServerPlayerData = require(ServerScriptService.module.ServerPlayerData)
 local GameTypes = require(ReplicatedStorage.Shared.types.GameTypes)
+local chooseRandomFromArray = require(ReplicatedStorage.Shared.util.chooseRandomFromArray)
 local Maid = require(ReplicatedStorage.package.Maid)
+
+local possibleGloves = { "bulky", "None" }
+local possibleWatches = { "silver", "None" }
 
 export type Class = {
 	__index: Class,
@@ -17,7 +23,7 @@ export type Class = {
 
 export type Object = typeof(setmetatable(
 	{} :: {
-		Data: ServerPlayerData.ServerPlayerProfile,
+		data: ServerPlayerData.ServerPlayerProfile,
 		janitor: Maid.Maid,
 		lean: lean.Object,
 		player: Player,
@@ -53,7 +59,25 @@ end
 
 function PlayerClass:OnCharacterDied() end
 
-function PlayerClass:UpdateCharacter(character: Model?) end
+function PlayerClass:UpdateCharacter(character: Model?)
+	if character then
+		local choosenGloves = chooseRandomFromArray(possibleGloves)
+		if choosenGloves == "None" then
+			choosenGloves = nil
+		end
+
+		local choosenWatch = chooseRandomFromArray(possibleWatches)
+		if choosenWatch == "None" then
+			choosenWatch = nil
+		end
+
+		self.data.producer.setCurrentGloves(choosenGloves)
+		self.data.producer.setCurrentWatch(choosenWatch)
+
+		Watch:ApplyToCharacter(character, self.data.producer:getState().currentWatch)
+		Gloves:ApplyToCharacter(character, self.data.producer:getState().currentGloves)
+	end
+end
 
 function PlayerClass:Update(deltaTime: number) end
 

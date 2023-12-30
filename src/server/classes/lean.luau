@@ -33,8 +33,6 @@ function Lean.new(player: Player, data: ServerPlayerData.ServerPlayerProfile)
 	self.player = player
 	self.currentLean = 0
 
-	print("constructed")
-
 	self.data.producer:subscribe(function(state)
 		return state.leanFactor
 	end, function(newValue: number)
@@ -45,12 +43,10 @@ function Lean.new(player: Player, data: ServerPlayerData.ServerPlayerProfile)
 	end)
 
 	self.characterJanitor:GiveTask(self.player.CharacterAdded:Connect(function(character: Model)
-		print("character added")
 		character:SetAttribute("leanFactor", self.data.producer:getState().leanFactor)
 	end))
 
 	if self.player.Character then
-		print("character here")
 		self.player.Character:SetAttribute("leanFactor", self.data.producer:getState().leanFactor)
 	end
 

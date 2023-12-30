@@ -1,6 +1,5 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RunService = game:GetService("RunService")
 
 local leanConfig = require(ReplicatedStorage.Shared.configurations.leanConfig)
 local spawnWithParams = require(ReplicatedStorage.Shared.util.spawnWithParams)
@@ -29,7 +28,8 @@ function Lean:Update(deltaTime)
 			return
 		end
 
-		local leanFactor = character:GetAttribute("leanFactor")
+		local leanFactor = character:GetAttribute("leanFactor") or 0
+
 		rootJoint.C0 = rootJoint.C0:Lerp(
 			leanConfig.baseC0
 				* CFrame.new((leanConfig.leanAngularAmount / 10) * leanFactor, 0, 0)

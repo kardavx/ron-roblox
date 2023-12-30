@@ -17,7 +17,11 @@ RunService:BindToRenderStep("PostUpdate", Enum.RenderPriority.Camera.Value + 1, 
 	clientInstance:PostUpdate(deltaTime)
 end)
 
-RunService:BindToRenderStep("Physics", Enum.RenderPriority.Character.Value + 1, function(deltaTime: number)
+RunService:BindToRenderStep("UpdateAfterCharacter", Enum.RenderPriority.Character.Value + 1, function(deltaTime: number)
+	clientInstance:UpdateAfterCharacter(deltaTime)
+end)
+
+RunService.Heartbeat:Connect(function(deltaTime: number)
 	clientInstance:UpdatePhysics(deltaTime)
 end)
 

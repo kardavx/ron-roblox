@@ -13,7 +13,7 @@ function Scream.new(): RenderPipelineTypes.NodeObject
 	local self = setmetatable({}, Scream)
 
 	self.spring = spring.new(Vector3.zero)
-	self.spring.Damper = 0.26
+	self.spring.Damper = 0.6
 	self.spring.Speed = 10
 
 	SignalBag:Connect("OnScream", function()

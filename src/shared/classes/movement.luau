@@ -16,7 +16,7 @@ type Character = Model & {
 
 export type Class = {
 	__index: Class,
-	new: (character: Character, accelerationMultiplier: number) -> Object,
+	new: (character: Character, accelerationMultiplier: number, decelerationMultiplier: number) -> Object,
 	UpdateSpeed: (self: Object) -> (),
 	BindInput: (self: Object) -> (),
 	Destroy: (self: Object) -> (),
@@ -34,8 +34,13 @@ export type Object = typeof(setmetatable(
 		},
 
 		accelerationMultiplier: number,
+		decelerationMultiplier: number,
+
 		turnDecelerationMultiplier: number,
+
 		desiredSpeed: number,
+		lastDesiredSpeed: number,
+
 		lastMoveDirection: Vector3,
 		lastPositiveInput: Vector3,
 	},
@@ -45,7 +50,7 @@ export type Object = typeof(setmetatable(
 local Movement: Class = {} :: Class
 Movement.__index = Movement
 
-function Movement.new(character: Character, accelerationMultiplier: number)
+function Movement.new(character: Character, accelerationMultiplier: number, decelerationMultiplier: number)
 	local self = setmetatable({}, Movement)
 
 	self.slowWalk = false
@@ -57,8 +62,12 @@ function Movement.new(character: Character, accelerationMultiplier: number)
 	self.character = character
 
 	self.accelerationMultiplier = accelerationMultiplier or movementConfig.defaultAccelerationMultiplier
+	self.decelerationMultiplier = decelerationMultiplier or movementConfig
+
 	self.turnDecelerationMultiplier = movementConfig.turnDecelerationMultiplier
+
 	self.desiredSpeed = 0
+	self.lastDesiredSpeed = self.desiredSpeed
 
 	self.lastPositiveInput = Vector3.zero
 
@@ -86,6 +95,7 @@ end
 
 function Movement:UpdateSpeed()
 	local moveDirection = getMoveDirectionInObjectSpace()
+	self.lastDesiredSpeed = self.desiredSpeed
 
 	if moveDirection.Magnitude > 0 then
 		if self.slowWalk then

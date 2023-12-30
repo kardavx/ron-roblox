@@ -228,6 +228,10 @@ function Weapon:UpdateAimParts()
 end
 
 function Weapon:UpdateLowReady()
+	if not self.lowReady and self.aiming then
+		return
+	end
+
 	self.lowReady = #self.lowReadyEnablers > 0
 	SignalBag:Fire("LowReady", self.lowReady)
 
@@ -385,6 +389,7 @@ function Weapon:Equip()
 		onAnimationEnded(self.animations.Equip, function()
 			self:BindInput()
 			self.equipping = false
+			self:UpdateLowReady()
 			resolve()
 		end, 0)
 	end)
@@ -395,6 +400,8 @@ function Weapon:Unequip()
 	self.aiming = false
 	self.adsZoomModifier:SetTarget(0, self.config.AimSpeed)
 	self.equipping = true
+	self.lowReady = false
+	SignalBag:Fire("LowReady", self.lowReady)
 
 	return Promise.new(function(resolve)
 		onAnimationEnded(self.animations.Unequip, function()

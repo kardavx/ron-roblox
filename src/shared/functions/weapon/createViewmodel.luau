@@ -2,6 +2,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local CurrentCamera = require(ReplicatedStorage.Shared.CurrentCamera)
 local LocalPlayer = require(ReplicatedStorage.Shared.LocalPlayer)
+local ClientPlayerData = require(ReplicatedStorage.Shared.module.ClientPlayerData)
 local Gloves = require(ReplicatedStorage.Shared.module.Gloves)
 local Watch = require(ReplicatedStorage.Shared.module.Watch)
 local WeaponTypes = require(ReplicatedStorage.Shared.types.WeaponTypes)
@@ -43,8 +44,20 @@ return function(viewmodelName: string): WeaponTypes.Viewmodel
 		end
 	end
 
-	Gloves:ApplyToViewmodel(clonedViewmodel)
-	Watch:ApplyToViewmodel(clonedViewmodel)
+	task.spawn(function()
+		if not ClientPlayerData.serverProfile then
+			repeat
+				task.wait()
+			until ClientPlayerData.serverProfile
+		end
+
+		if not clonedViewmodel then
+			return
+		end
+
+		Gloves:ApplyToViewmodel(clonedViewmodel, ClientPlayerData.serverProfile:getState().currentGloves)
+		Watch:ApplyToViewmodel(clonedViewmodel, ClientPlayerData.serverProfile:getState().currentWatch)
+	end)
 
 	return clonedViewmodel :: WeaponTypes.Viewmodel
 end

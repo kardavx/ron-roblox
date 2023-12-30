@@ -85,7 +85,7 @@ function Loadout.new()
 end
 
 function Loadout:IsWeaponEquipped()
-	return (self.currentWeapon ~= nil)
+	return (self.currentWeapon ~= nil and self.weaponChangeQueued == false)
 end
 
 function Loadout:BindInput()

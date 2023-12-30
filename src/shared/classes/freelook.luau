@@ -7,6 +7,8 @@ local cameraModifier = require(ReplicatedStorage.Shared.classes.camera.cameraMod
 local input = require(ReplicatedStorage.Shared.classes.input)
 local freelookConfig = require(ReplicatedStorage.Shared.configurations.freelookConfig)
 local ClassBag = require(ReplicatedStorage.Shared.module.ClassBag)
+local ClientPlayerData = require(ReplicatedStorage.Shared.module.ClientPlayerData)
+local serverProfile = require(ReplicatedStorage.Shared.reflex.serverProfile)
 local GameTypes = require(ReplicatedStorage.Shared.types.GameTypes)
 local Maid = require(ReplicatedStorage.package.Maid)
 
@@ -23,6 +25,7 @@ export type Object = typeof(setmetatable(
 		enabled: boolean,
 		freelookOffset: Vector2,
 		modifier: cameraModifier.Object,
+		data: serverProfile.Producer,
 	},
 	{} :: Class
 ))
@@ -38,6 +41,8 @@ function Freelook.new()
 	self.inputJanitor = Maid.new()
 	self.enabled = false
 	self.freelookOffset = Vector2.zero
+	ClientPlayerData.playerDataLoadedSignal:Wait()
+	self.data = ClientPlayerData.serverProfile
 
 	self:BindInput()
 
@@ -47,7 +52,11 @@ end
 function Freelook:BindInput()
 	local freelookConnection = input.SubscribeToInput("Freelook", function(holding: boolean)
 		self.enabled = holding
-		self.camera:SetLocked(self.enabled)
+		if holding then
+			self.data.addMouseLocker("freelook")
+		else
+			self.data.removeMouseLocker("freelook")
+		end
 	end)
 
 	self.inputJanitor:GiveTask(function()

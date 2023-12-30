@@ -3,11 +3,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local glovesDirectory = ReplicatedStorage.Gloves :: Folder
 
 type LocalProperties = {
-	currentGloves: string?,
-	SetCurrentGloves: (self: LocalProperties, glovesName: string?) -> (),
-	ApplyToViewmodel: (self: LocalProperties, viewmodel: Model) -> (),
 	CleanupOldGloves: (self: LocalProperties, viewmodelOrCharacter: Model) -> (),
-	ApplyToCharacter: (self: LocalProperties, character: Model) -> (),
+	ApplyToViewmodel: (self: LocalProperties, viewmodel: Model, currentGloves: string) -> (),
+	ApplyToCharacter: (self: LocalProperties, character: Model, currentGloves: string) -> (),
 }
 
 type Glove = BasePart & {
@@ -79,14 +77,6 @@ local function getGlovesFolder(folderFor: "Viewmodel" | "Character", glovesName:
 	return scope
 end
 
-function Gloves:SetCurrentGloves(glovesName: string | nil)
-	if glovesName ~= nil and not glovesDirectory:FindFirstChild(glovesName) then
-		error(`Given gloves have no storage specified!`)
-	end
-
-	self.currentGloves = glovesName
-end
-
 function Gloves:CleanupOldGloves(viewmodelOrCharacter: Model)
 	local oldLeftGlove = viewmodelOrCharacter:FindFirstChild(leftGloveName) :: Glove
 	if oldLeftGlove then
@@ -99,14 +89,14 @@ function Gloves:CleanupOldGloves(viewmodelOrCharacter: Model)
 	end
 end
 
-function Gloves:ApplyToViewmodel(viewmodel: Model)
+function Gloves:ApplyToViewmodel(viewmodel: Model, currentGloves: string?)
 	self:CleanupOldGloves(viewmodel)
 
-	if not self.currentGloves then
+	if not currentGloves then
 		return
 	end
 
-	local glovesFolder = getGlovesFolder("Viewmodel", self.currentGloves)
+	local glovesFolder = getGlovesFolder("Viewmodel", currentGloves)
 	local leftGlove, rightGlove = applyGloves(
 		glovesFolder,
 		viewmodel:FindFirstChild("Left Arm") :: Arm,
@@ -117,14 +107,14 @@ function Gloves:ApplyToViewmodel(viewmodel: Model)
 	rightGlove.Parent = viewmodel
 end
 
-function Gloves:ApplyToCharacter(character: Model)
+function Gloves:ApplyToCharacter(character: Model, currentGloves: string?)
 	self:CleanupOldGloves(character)
 
-	if not self.currentGloves then
+	if not currentGloves then
 		return
 	end
 
-	local glovesFolder = getGlovesFolder("Character", self.currentGloves)
+	local glovesFolder = getGlovesFolder("Character", currentGloves)
 	local leftGlove, rightGlove = applyGloves(
 		glovesFolder,
 		character:FindFirstChild("Left Arm") :: Arm,

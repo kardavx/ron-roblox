@@ -5,6 +5,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 
 local Maid = require(ReplicatedStorage.package.Maid)
 local playerClass = require(ServerScriptService.classes.player)
+local ServerTags = require(ServerScriptService.module.ServerTags)
 require(ServerScriptService.NPCTest)
 
 ---// inicjalizuje serverDate, nie pytaj czemu w taki sposob - shibe to wymyslil XD
@@ -13,6 +14,20 @@ require(ServerScriptService.module.ServerPlayerData)
 local playerObjects: { [string]: playerClass.Object } = {}
 local playerJanitors: { [string]: Maid.Maid } = {}
 local characterJanitors: { [string]: Maid.Maid } = {}
+
+ServerTags:Start()
+
+local function characterAdded(player: Player, character: Model)
+	local playerObject = playerObjects[player.Name] :: playerClass.Object
+	local characterJanitor = Maid.new()
+	local humanoid = character:WaitForChild("Humanoid") :: Humanoid
+
+	characterJanitor:GiveTask(humanoid.Died:Connect(function()
+		playerObject:OnCharacterDied()
+	end))
+
+	playerObject:UpdateCharacter(character)
+end
 
 local function playerAdded(player: Player)
 	local janitor = Maid.new()
@@ -26,16 +41,12 @@ local function playerAdded(player: Player)
 		playerObjects[player.Name] = nil
 	end)
 
+	if player.Character then
+		characterAdded(player, player.Character)
+	end
+
 	janitor:GiveTask(player.CharacterAdded:Connect(function(character: Model)
-		local playerObject = playerObjects[player.Name] :: playerClass.Object
-		local characterJanitor = Maid.new()
-		local humanoid = character:WaitForChild("Humanoid") :: Humanoid
-
-		characterJanitor:GiveTask(humanoid.Died:Connect(function()
-			playerObject:OnCharacterDied()
-		end))
-
-		playerObject:UpdateCharacter(character)
+		characterAdded(player, character)
 	end))
 
 	janitor:GiveTask(player.CharacterRemoving:Connect(function()

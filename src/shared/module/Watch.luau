@@ -3,11 +3,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local WatchDirectory = ReplicatedStorage.Watches :: Folder
 
 type LocalProperties = {
-	currentWatch: string?,
-	SetCurrentWatch: (self: LocalProperties, WatchName: string?) -> (),
-	ApplyToViewmodel: (self: LocalProperties, viewmodel: Model) -> (),
 	CleanupOldWatch: (self: LocalProperties, viewmodelOrCharacter: Model) -> (),
-	ApplyToCharacter: (self: LocalProperties, character: Model) -> (),
+	ApplyToViewmodel: (self: LocalProperties, viewmodel: Model, currentWatch: string?) -> (),
+	ApplyToCharacter: (self: LocalProperties, character: Model, currentWatch: string?) -> (),
 }
 
 type Watch = BasePart & {
@@ -56,14 +54,6 @@ local function getWatchFolder(folderFor: "Viewmodel" | "Character", WatchName: s
 	return scope
 end
 
-function Watch:SetCurrentWatch(WatchName: string?)
-	if WatchName ~= nil and not WatchDirectory:FindFirstChild(WatchName) then
-		error(`Given Watch have no storage specified!`)
-	end
-
-	self.currentWatch = WatchName
-end
-
 function Watch:CleanupOldWatch(viewmodelOrCharacter: Model)
 	local oldWatch = viewmodelOrCharacter:FindFirstChild(watchName) :: Watch
 	if oldWatch then
@@ -71,27 +61,27 @@ function Watch:CleanupOldWatch(viewmodelOrCharacter: Model)
 	end
 end
 
-function Watch:ApplyToViewmodel(viewmodel: Model)
+function Watch:ApplyToViewmodel(viewmodel: Model, currentWatch: string?)
 	self:CleanupOldWatch(viewmodel)
 
-	if not self.currentWatch then
+	if not currentWatch then
 		return
 	end
 
-	local WatchFolder = getWatchFolder("Viewmodel", self.currentWatch)
+	local WatchFolder = getWatchFolder("Viewmodel", currentWatch)
 	local watch = applyWatch(WatchFolder, viewmodel:FindFirstChild("Left Arm") :: Arm)
 
 	watch.Parent = viewmodel
 end
 
-function Watch:ApplyToCharacter(character: Model)
+function Watch:ApplyToCharacter(character: Model, currentWatch: string?)
 	self:CleanupOldWatch(character)
 
-	if not self.currentWatch then
+	if not currentWatch then
 		return
 	end
 
-	local WatchFolder = getWatchFolder("Character", self.currentWatch)
+	local WatchFolder = getWatchFolder("Character", currentWatch)
 	local watch = applyWatch(WatchFolder, character:FindFirstChild("Left Arm") :: Arm)
 
 	watch.Parent = character

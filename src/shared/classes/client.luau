@@ -11,19 +11,14 @@ local ClassBag = require(ReplicatedStorage.Shared.module.ClassBag)
 local ClientPlayerData = require(ReplicatedStorage.Shared.module.ClientPlayerData)
 local ClientTags = require(ReplicatedStorage.Shared.module.ClientTags)
 local DynamicReverb = require(ReplicatedStorage.Shared.module.DynamicReverb)
-local Gloves = require(ReplicatedStorage.Shared.module.Gloves)
+local HeadAnimations = require(ReplicatedStorage.Shared.module.HeadAnimations)
 local Interace = require(ReplicatedStorage.Shared.module.Interace)
 local Lean = require(ReplicatedStorage.Shared.module.Lean)
 local Projectors = require(ReplicatedStorage.Shared.module.Projectors)
 local HumanoidStateAdjuster = require(ReplicatedStorage.Shared.module.HumanoidStateAdjuster)
-local Watch = require(ReplicatedStorage.Shared.module.Watch)
 local GameTypes = require(ReplicatedStorage.Shared.types.GameTypes)
-local chooseRandomFromArray = require(ReplicatedStorage.Shared.util.chooseRandomFromArray)
 
 require(ReplicatedStorage.Shared.module.Scream)
-
-local possibleGloves = { "bulky", "None" }
-local possibleWatches = { "silver", "None" }
 
 export type Class = {
 	__index: Class,
@@ -137,22 +132,8 @@ function Client:UpdateCharacter(character)
 	end
 
 	if character then
-		self.movement = movement.new(character, 4)
+		self.movement = movement.new(character, 4, 7)
 		HumanoidStateAdjuster:AdjustStates(character.Humanoid)
-
-		local choosenGloves = chooseRandomFromArray(possibleGloves)
-		if choosenGloves == "None" then
-			choosenGloves = nil
-		end
-
-		local choosenWatch = chooseRandomFromArray(possibleWatches)
-		if choosenWatch == "None" then
-			choosenWatch = nil
-		end
-
-		Gloves:SetCurrentGloves(choosenGloves)
-		Watch:SetCurrentWatch(choosenWatch)
-		self.movement = movement.new(character, 4)
 	end
 end
 
@@ -163,14 +144,18 @@ function Client:Update(deltaTime: number)
 	DynamicReverb:Update(deltaTime)
 	Ambience:Update(deltaTime)
 	self.loadout:Update(deltaTime)
+	HeadAnimations:Update(deltaTime)
 
 	if self.movement then
 		self.movement:Update(deltaTime)
 	end
 end
 
-function Client:UpdatePhysics(deltaTime: number)
+function Client:UpdateAfterCharacter(deltaTime: number)
 	self.camera:UpdatePhysics(deltaTime)
+end
+
+function Client:UpdatePhysics(deltaTime: number)
 	Lean:Update(deltaTime)
 end
 
