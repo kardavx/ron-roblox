@@ -14,6 +14,8 @@ local npcCharacter
 local raycastParams = RaycastParams.new()
 raycastParams.FilterType = Enum.RaycastFilterType.Include
 
+local lastScream = 0
+
 input.SubscribeToInput("Arrest", function()
 	if npcCharacter then
 		Bridgenet2.ClientBridge("OnArrest"):Fire(npcCharacter)
@@ -21,6 +23,12 @@ input.SubscribeToInput("Arrest", function()
 end)
 
 input.SubscribeToInput("Scream", function()
+	local now = os.clock()
+	if now - lastScream < 1 then
+		return
+	end
+	lastScream = now
+
 	SignalBag:Fire("OnScream")
 	Bridgenet2.ClientBridge("OnScream"):Fire()
 end)
@@ -40,10 +48,13 @@ RunService.PreRender:Connect(function()
 		or (raycastResult.Instance.Parent.Parent:HasTag("NPC") and raycastResult.Instance.Parent.Parent)
 	npcCharacter = character
 	if not character then
+		npcCharacter = nil
 		return
 	end
 
-	Bridgenet2.ClientBridge("OnSurrender"):Fire(character)
+	if not npcCharacter:GetAttribute("AreHandsUp") then
+		Bridgenet2.ClientBridge("OnSurrender"):Fire(character)
+	end
 end)
 
 return table.freeze({})

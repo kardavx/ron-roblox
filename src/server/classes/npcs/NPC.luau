@@ -34,7 +34,8 @@ function NPC:MoveTo(destination: Vector3): ()
 	self:SetState("Run")
 
 	self.connections.pathReached = self.pathFinder.events.moveToFinished.Event:Once(function()
-		if self.state == "Run" or self.state == "Walk" then
+		local state = self:GetState()
+		if state == "Run" or state == "Walk" then
 			self:SetState("Idle")
 		end
 	end)
@@ -83,21 +84,38 @@ function NPC:StopAnimation(name: string): boolean
 	return true
 end
 
+function NPC:SetAttribute(name: string, value: any)
+	self[name] = value
+
+	if self.character then
+		self.character:SetAttribute(name, value)
+	end
+end
+
+function NPC:GetAttribute(name: string)
+	return self[name]
+end
+
 function NPC:SetState(state: string): boolean
-	if self.state == state then
+	if self:GetAttribute("State") == state then
 		return false
 	end
 
 	local oldState = self.state
 
 	self:PlayStateAnimation(state)
+	self:SetAttribute("State", state)
 
-	self.state = state
 	return true
 end
 
+function NPC:GetState()
+	return self:GetAttribute("State")
+end
+
 function NPC:IsMoving(): boolean
-	return self.state == "Run" or self.state == "Walk"
+	local state = self:GetAttribute("State")
+	return state == "Run" or state == "Walk"
 end
 
 function NPC:StopMoving()
@@ -107,42 +125,42 @@ function NPC:StopMoving()
 end
 
 function NPC:HandsUp(): boolean
-	if self.areHandsUp then
+	if self:GetAttribute("AreHandsUp") then
 		return false
 	end
 
-	self.areHandsUp = true
+	self:SetAttribute("AreHandsUp", true)
 	self:PlayAnimation("HandsUp")
 	return true
 end
 
 function NPC:HandsDown(): boolean
-	if not self.areHandsUp then
+	if not self:GetAttribute("AreHandsUp") then
 		return false
 	end
 
-	self.areHandsUp = false
+	self:SetAttribute("AreHandsUp", false)
 	self:StopAnimation("HandsUp")
 	return true
 end
 
 function NPC:OnKnees()
-	if self.isOnKnees then
+	if self:GetAttribute("IsOnKnees") then
 		return
 	end
 
 	self:StopMoving()
 
-	self.isOnKnees = true
+	self:SetAttribute("IsOnKnees", true)
 	self:PlayAnimation("OnKnees")
 end
 
 function NPC:OffKnees()
-	if not self.isOnKnees then
+	if not self:GetAttribute("IsOnKnees") then
 		return
 	end
 
-	self.isOnKnees = false
+	self:SetAttribute("IsOnKnees", false)
 	self:StopAnimation("OnKnees")
 end
 
@@ -151,16 +169,17 @@ function NPC:Surrender()
 	return self:HandsUp()
 end
 
-function NPC:ScreamOn(): ()
-	if not self.areHandsUp then
-		return
+function NPC:ScreamOn()
+	if not self:GetAttribute("AreHandsUp") then
+		self:StopMoving()
+		return self:HandsUp()
 	end
 
-	self:OnKnees()
+	return self:OnKnees()
 end
 
 function NPC:Arrest(player: Player): boolean
-	if self.isArrested then
+	if self:GetAttribute("IsArrested") then
 		return false
 	end
 
@@ -181,7 +200,7 @@ function NPC:Arrest(player: Player): boolean
 		return false
 	end
 
-	self.isArrested = true
+	self:SetAttribute("IsArrested", true)
 
 	local animation = Instance.new("Animation")
 	animation.AnimationId = "rbxassetid://15786953347"
@@ -245,7 +264,7 @@ function NPC:GetPart(partName: string | nil): Instance | nil
 end
 
 function NPC:IsSurrended()
-	return self.areHandsUp and self.isOnKnees
+	return self:GetAttribute("AreHandsUp") and self:GetAttribute("IsOnKnees")
 end
 
 function NPC:Destroy(): ()
