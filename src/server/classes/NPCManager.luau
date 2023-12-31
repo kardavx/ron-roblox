@@ -27,7 +27,7 @@ function NPCManager:OnScream(player: Player, pivot: CFrame)
 		end
 
 		if (npcPivot.Position - pivot.Position).Magnitude <= 50 then
-			npc:ScreamOn()
+			npc:ScreamOn(player, pivot)
 		end
 	end
 end

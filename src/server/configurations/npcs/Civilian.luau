@@ -3,7 +3,22 @@ local NPCSConfig = {}
 return setmetatable(NPCSConfig, {
 	__index = function()
 		return {
-			animationsInfo = {
+			Durations = {
+				RunAway = 10,
+			},
+			LevelRequirments = {
+				HandsUp = {
+					Intimidation = { [">="] = 0.5 },
+				},
+				OnKnees = {
+					Intimidation = { [">="] = 0.75 },
+				},
+				RunAway = {
+					Aggressiveness = { [">"] = 0.5 },
+					Intimidation = { ["<="] = 0.5 },
+				},
+			},
+			AnimationsInfo = {
 				Idle = {
 					{ Id = 15746292677 },
 				},
