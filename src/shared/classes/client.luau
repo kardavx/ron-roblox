@@ -16,6 +16,7 @@ local Interace = require(ReplicatedStorage.Shared.module.Interace)
 local Lean = require(ReplicatedStorage.Shared.module.Lean)
 local Projectors = require(ReplicatedStorage.Shared.module.Projectors)
 local HumanoidStateAdjuster = require(ReplicatedStorage.Shared.module.HumanoidStateAdjuster)
+local TOC = require(ReplicatedStorage.Shared.module.TOC)
 local GameTypes = require(ReplicatedStorage.Shared.types.GameTypes)
 
 require(ReplicatedStorage.Shared.module.Scream)
@@ -117,6 +118,7 @@ function Client.new()
 	end)
 
 	ClientTags:Start()
+	TOC:Start()
 
 	return self
 end

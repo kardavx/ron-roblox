@@ -19,12 +19,15 @@ local function DialogDisplay(props: Props)
 		return state.activeDialogs
 	end)
 
+	local positionsToDelete = {}
+
 	React.useEffect(function()
 		local janitor = Maid.new()
 
 		janitor:GiveTask(RunService.Heartbeat:Connect(function()
 			for dialogPosition, dialogInfo in dialogIds do
-				if tick() >= dialogInfo.dialogEnd then
+				if tick() >= dialogInfo.dialogEnd and not table.find(positionsToDelete, dialogPosition) then
+					table.insert(positionsToDelete, dialogPosition)
 					props.common.clientState.removeDialog(dialogPosition)
 				end
 			end

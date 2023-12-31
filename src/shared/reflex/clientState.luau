@@ -3,13 +3,13 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local dialogData = require(ReplicatedStorage.Shared.data.dialogData)
-local DialogTypes = require(ReplicatedStorage.Shared.types.DialogTypes)
 local Reflex = require(ReplicatedStorage.package.Reflex)
 
 export type Producer = Reflex.Producer<State, Actions>
 
 export type State = {
 	activeDialogs: { { dialogId: string, dialogEnd: number } },
+	talkingThroughRadio: boolean,
 	DEBUG_COUNT: number,
 }
 
@@ -17,10 +17,12 @@ type Actions = {
 	increment: () -> (),
 	addDialog: (dialogId: string) -> (),
 	removeDialog: (dialogPosition: number) -> (),
+	setTalkingThroughRadio: (talkingState: boolean) -> (),
 }
 
 local DEFAULT_STATE: State = {
 	activeDialogs = {},
+	talkingThroughRadio = false,
 	DEBUG_COUNT = 0,
 }
 
@@ -55,7 +57,12 @@ function CreateProducer(initialState: State): Producer
 			state.activeDialogs = table.clone(state.activeDialogs)
 			table.remove(state.activeDialogs, dialogPosition)
 
-			print(state)
+			return state
+		end,
+
+		setTalkingThroughRadio = function(oldState: State, talkingState: boolean): State
+			local state = table.clone(oldState)
+			state.talkingThroughRadio = talkingState
 
 			return state
 		end,

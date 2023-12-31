@@ -8,8 +8,10 @@ local ServerPlayerData = require(ServerScriptService.module.ServerPlayerData)
 local Animator = require(ReplicatedStorage.Shared.classes.Animator)
 local PathFinder = require(ReplicatedStorage.Shared.classes.PathFinder)
 local SingleUseTween = require(ReplicatedStorage.Shared.util.SingleUseTween)
+local Bridgenet2 = require(ReplicatedStorage.package.Bridgenet2)
 
 local prefabs = ReplicatedStorage:WaitForChild("Prefabs")
+local PlayTOCVoicelineBridge = Bridgenet2.ServerBridge("PlayTOCVoicelineBridge")
 
 local NPC = {}
 local NPCs = {}
@@ -355,6 +357,7 @@ function NPC:Arrest(player: Player): boolean
 		playerHRP.Anchored = false
 		playerData.producer.removeWeaponHider("Arresting")
 		playerData.producer.removeMouseLocker("Arresting")
+		PlayTOCVoicelineBridge:Fire(player, "Arrested")
 	end)
 
 	self:PlayAnimation("Arrest")

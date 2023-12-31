@@ -10,6 +10,7 @@ local createViewmodel = require(ReplicatedStorage.Shared.functions.weapon.create
 local loadAnimationInformation = require(ReplicatedStorage.Shared.functions.weapon.loadAnimationInformation)
 local loadAnimations = require(ReplicatedStorage.Shared.functions.weapon.loadAnimations)
 local ClassBag = require(ReplicatedStorage.Shared.module.ClassBag)
+local ClientPlayerData = require(ReplicatedStorage.Shared.module.ClientPlayerData)
 local SignalBag = require(ReplicatedStorage.Shared.module.SignalBag)
 local aim = require(ReplicatedStorage.Shared.renderPipelines.renderNodes.aim)
 local bobbing = require(ReplicatedStorage.Shared.renderPipelines.renderNodes.bobbing)
@@ -29,6 +30,7 @@ local onAnimationEnded = require(ReplicatedStorage.Shared.util.animations.onAnim
 local playAnimation = require(ReplicatedStorage.Shared.util.animations.playAnimation)
 local playAnimationIfNotPlaying = require(ReplicatedStorage.Shared.util.animations.playAnimationIfNotPlaying)
 local stopAnimation = require(ReplicatedStorage.Shared.util.animations.stopAnimation)
+local stopAnimationIfPlaying = require(ReplicatedStorage.Shared.util.animations.stopAnimationIfPlaying)
 local stopAnimations = require(ReplicatedStorage.Shared.util.animations.stopAnimations)
 local deepClone = require(ReplicatedStorage.Shared.util.deepClone)
 local Maid = require(ReplicatedStorage.package.Maid)
@@ -315,6 +317,20 @@ function Weapon:BindInput()
 		self:RemoveLowReadyEnabler(enablerId)
 	end)
 
+	if ClientPlayerData.clientProducer:getState().talkingThroughRadio == true then
+		playAnimation(self.animations.Radio, 0.2)
+	end
+
+	local talkingThroughRadioConnection = ClientPlayerData.clientProducer:subscribe(function(state)
+		return state.talkingThroughRadio
+	end, function(newValue: boolean)
+		if newValue then
+			playAnimation(self.animations.Radio, 0.2)
+		else
+			stopAnimation(self.animations.Radio, 0.2)
+		end
+	end)
+
 	SignalBag:Connect("Use", function()
 		if not self:CanDoAction("All") then
 			return
@@ -330,6 +346,7 @@ function Weapon:BindInput()
 		lowReadyConnection:Destroy()
 		addExternalLowReadyConnection:Destroy()
 		removeExternalLowReadyConnection:Destroy()
+		talkingThroughRadioConnection()
 	end)
 end
 
