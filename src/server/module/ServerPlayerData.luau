@@ -2,6 +2,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 local serverProfile = require(ReplicatedStorage.Shared.reflex.serverProfile)
@@ -31,7 +32,10 @@ type LocalProperties = {
 
 local ServerPlayerData: LocalProperties = {} :: LocalProperties
 
-local ProfileStore = ProfileService.GetProfileStore(serverDatastoreKeys.storeKey, serverProfile.DEFAULT_STATE)
+local ProfileStore = ProfileService.GetProfileStore(
+	RunService:IsStudio() and serverDatastoreKeys.devStoreKey or serverDatastoreKeys.prodStoreKey,
+	serverProfile.DEFAULT_STATE
+)
 
 local playerProfiles: { [Player]: ServerPlayerProfile? } = {}
 local getPlayerDataEvent = Bridgenet2.ServerBridge("GetPlayerData")
@@ -97,7 +101,20 @@ local function playerRemoving(player)
 	end
 
 	-- NIE DOTYKAĆ! potrzebne do zapisu danych
-	(profile.profileStore :: any).Data = profile.producer:getState()
+
+	local currentState = profile.producer:getState()
+	local savedState = {}
+
+	for _, savedKey in serverProfile.SAVED_STATE do
+		local value = currentState[savedKey]
+		if not value then
+			continue
+		end
+
+		savedState[savedKey] = value
+	end
+
+	(profile.profileStore :: any).Data = savedState
 
 	profile.profileStore:Release()
 	playerProfiles[player] = nil

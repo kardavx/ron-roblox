@@ -37,7 +37,6 @@ function Lean.new(player: Player, data: ServerPlayerData.ServerPlayerProfile)
 		return state.leanFactor
 	end, function(newValue: number)
 		if self.player.Character then
-			print("value changed")
 			self.player.Character:SetAttribute("leanFactor", newValue)
 		end
 	end)

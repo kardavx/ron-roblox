@@ -347,7 +347,7 @@ function NPC:Arrest(player: Player): boolean
 	SingleUseTween(
 		self.character.PrimaryPart,
 		TweenInfo.new(0.5, Enum.EasingStyle.Linear),
-		{ CFrame = playerPivot + playerPivot.LookVector * 3 }
+		{ CFrame = playerPivot * CFrame.new(0, 0, -3) }
 	)
 
 	animationTrack.Stopped:Once(function()

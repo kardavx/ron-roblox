@@ -26,6 +26,11 @@ type Actions = {
 	setCurrentWatch: (watchName: string?) -> (),
 }
 
+local SAVED_STATE = {
+	"currentGloves",
+	"currentWatch",
+}
+
 local DEFAULT_STATE: State = {
 	weaponHiders = {},
 	mouseLockers = {},
@@ -115,4 +120,5 @@ end
 return {
 	CreateProducer = CreateProducer,
 	DEFAULT_STATE = DEFAULT_STATE,
+	SAVED_STATE = SAVED_STATE,
 }

@@ -1,6 +1,7 @@
 return {
 	getKey = function(id: number)
-		return string.format("TEST1_%d", id)
+		return `RON_{id}`
 	end,
-	storeKey = "11221",
+	devStoreKey = "RON_DEV_DATABASE",
+	prodStoreKey = "RON_PROD_DATABASE",
 }

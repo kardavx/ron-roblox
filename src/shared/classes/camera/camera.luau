@@ -130,7 +130,7 @@ function Camera:Update(deltaTime: number)
 	CurrentCamera.FieldOfView = self.baseFov + fovModifier.SumModifiers()
 
 	self.currentShove = self.currentShove:Lerp(self.targetShove, 20 * deltaTime)
-	self.orientation += self.currentShove
+	self.orientation += self.currentShove * deltaTime * 30
 
 	self.rawCameraCFrame = (
 		CFrame.new((relativePart.CFrame * CFrame.new(cameraConfig.offset)).Position)

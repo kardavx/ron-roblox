@@ -2,8 +2,6 @@ local PathfindingService = game:GetService("PathfindingService")
 local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
 
-local TextureGenerationMeshHandler = game:GetService("TextureGenerationMeshHandler")
-
 local PathFinder = {}
 local PathFinders = {}
 PathFinder.__index = PathFinder
