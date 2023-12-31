@@ -18,8 +18,8 @@ NPC.__index = NPC
 function NPC.new(className: string, intimidation: number | nil, aggressiveness: number | nil)
 	local self = setmetatable({}, NPC)
 	self.className = className
-	self:SetAttribute("Intimidation", 0.2)
-	self:SetAttribute("Aggressiveness", 1)
+	self:SetAttribute("Intimidation", math.random())
+	self:SetAttribute("Aggressiveness", math.random())
 	self.state = "Idle"
 
 	self.lastDestinations = {}
