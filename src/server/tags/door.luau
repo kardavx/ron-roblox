@@ -52,6 +52,7 @@ return {
 		end
 
 		local hinge = instance.PrimaryPart
+		local basePivot = instance:GetPivot()
 
 		local doorJanitor = Maid.new()
 
@@ -67,6 +68,78 @@ return {
 
 		local peekPrompt
 		local kickPrompt
+
+		local function openDoor(sound: Sound, character: Model?)
+			if doorLocked or doorKicked or not character then
+				return
+			end
+
+			sound:Play()
+			instance:SetAttribute("lerpSpeed", openLerpSpeed)
+			instance:SetAttribute(
+				"targetRotation",
+				isOpened(instance:GetAttribute("targetRotation")) and 0
+					or getActualAngle(instance, character, openAngle)
+			)
+		end
+
+		local function peekDoor(character: Model?)
+			if doorLocked or doorKicked or not character then
+				return
+			end
+
+			local isPeeked = math.abs(instance:GetAttribute("targetRotation")) == peakAngle
+
+			instance:SetAttribute("lerpSpeed", peekLerpSpeed)
+			instance:SetAttribute("targetRotation", isPeeked and 0 or getActualAngle(instance, character, peakAngle))
+		end
+
+		local function kickDoor(sound: Sound, soundBreached: Sound, onKicked: () -> (), character: Model?)
+			if doorKicked or not character or not character.PrimaryPart then
+				onKicked()
+				return
+			end
+
+			doorKicked = true
+
+			local playerHumanoid = character and character:FindFirstChildWhichIsA("Humanoid")
+			local playerAnimator = playerHumanoid and playerHumanoid:FindFirstChildWhichIsA("Animator")
+
+			character.PrimaryPart.Anchored = true
+
+			local kickAnimation = Instance.new("Animation")
+			kickAnimation.AnimationId = "rbxassetid://15807161539"
+			local kickAnimationTrack = playerAnimator:LoadAnimation(kickAnimation)
+			kickAnimation:Destroy()
+
+			repeat
+				task.wait()
+			until kickAnimationTrack.Length > 0
+
+			kickAnimationTrack:Play()
+			task.delay(kickAnimationTrack.Length, function()
+				local kickSucceeded = (doorLocked == false) and true or randomBoolean(3)
+
+				doorKicked = false
+				character.PrimaryPart.Anchored = false
+				onKicked()
+				sound:Play()
+
+				if kickSucceeded then
+					if doorLocked then
+						doorLocked = false
+					end
+
+					soundBreached:Play()
+					instance:SetAttribute("lerpSpeed", kickLerpSpeed)
+					instance:SetAttribute("targetRotation", getActualAngle(instance, character, kickAngle))
+				end
+			end)
+
+			kickAnimationTrack.Stopped:Once(function()
+				kickAnimationTrack:Destroy()
+			end)
+		end
 
 		if openContainer then
 			local openPrompt = createInstance("ProximityPrompt", {
@@ -84,17 +157,7 @@ return {
 			})
 
 			doorJanitor:GiveTask(openPrompt.Triggered:Connect(function(player: Player)
-				if doorLocked or doorKicked or not player.Character then
-					return
-				end
-
-				sound:Play()
-				instance:SetAttribute("lerpSpeed", openLerpSpeed)
-				instance:SetAttribute(
-					"targetRotation",
-					isOpened(instance:GetAttribute("targetRotation")) and 0
-						or getActualAngle(instance, player.Character, openAngle)
-				)
+				openDoor(sound, player.Character)
 			end))
 
 			doorJanitor:GiveTask(sound)
@@ -112,17 +175,7 @@ return {
 			}) :: ProximityPrompt
 
 			doorJanitor:GiveTask(peekPrompt.Triggered:Connect(function(player: Player)
-				if doorLocked or doorKicked or not player.Character then
-					return
-				end
-
-				local isPeeked = math.abs(instance:GetAttribute("targetRotation")) == peakAngle
-
-				instance:SetAttribute("lerpSpeed", peekLerpSpeed)
-				instance:SetAttribute(
-					"targetRotation",
-					isPeeked and 0 or getActualAngle(instance, player.Character, peakAngle)
-				)
+				peekDoor(player.Character)
 			end))
 
 			doorJanitor:GiveTask(peekPrompt)
@@ -152,62 +205,24 @@ return {
 			}) :: ProximityPrompt
 
 			doorJanitor:GiveTask(kickPrompt.Triggered:Connect(function(player: Player)
-				if doorKicked or not player.Character then
-					return
-				end
-
-				doorKicked = true
-
 				local playerData = ServerPlayerData.GetPlayerProfile(player)
-
 				playerData.producer.addWeaponHider("KickingDoor")
 				playerData.producer.addMouseLocker("KickingDoor")
 
-				local playerCharacter = player.Character
-				local playerHumanoid = playerCharacter and playerCharacter:FindFirstChildWhichIsA("Humanoid")
-				local playerAnimator = playerHumanoid and playerHumanoid:FindFirstChildWhichIsA("Animator")
-
-				playerCharacter.PrimaryPart.Anchored = true
-
-				local kickAnimation = Instance.new("Animation")
-				kickAnimation.AnimationId = "rbxassetid://15807161539"
-				local kickAnimationTrack = playerAnimator:LoadAnimation(kickAnimation)
-				kickAnimation:Destroy()
-
-				repeat
-					task.wait()
-				until kickAnimationTrack.Length > 0
-
-				kickAnimationTrack:Play()
-				task.delay(kickAnimationTrack.Length, function()
-					local kickSucceeded = (doorLocked == false) and true or randomBoolean(3)
-
-					doorKicked = false
-					playerCharacter.PrimaryPart.Anchored = false
+				kickDoor(sound, soundBreached, function()
 					playerData.producer.removeWeaponHider("KickingDoor")
 					playerData.producer.removeMouseLocker("KickingDoor")
-					sound:Play()
-
-					if kickSucceeded then
-						if doorLocked then
-							doorLocked = false
-						end
-
-						soundBreached:Play()
-						instance:SetAttribute("lerpSpeed", kickLerpSpeed)
-						instance:SetAttribute("targetRotation", getActualAngle(instance, playerCharacter, kickAngle))
-					end
-				end)
-
-				kickAnimationTrack.Stopped:Once(function()
-					kickAnimationTrack:Destroy()
-				end)
+				end, player.Character)
 			end))
 
 			doorJanitor:GiveTask(sound)
 			doorJanitor:GiveTask(kickPrompt)
 			doorJanitor:GiveTask(soundBreached)
 		end
+
+		doorJanitor:GiveTask(instance:GetAttributeChangedSignal("targetRotation"):Connect(function()
+			instance:PivotTo(basePivot * CFrame.Angles(0, math.rad(instance:GetAttribute("targetRotation")), 0))
+		end))
 
 		return function()
 			doorJanitor:Destroy()

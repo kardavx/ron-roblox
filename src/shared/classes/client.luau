@@ -101,19 +101,19 @@ function Client.new()
 	self.freelook = freelook.new()
 
 	input.SubscribeToInput("LeanLeft", function(holding: boolean)
-		if ClientPlayerData.serverProfile:getState().leanFactor == -1 then
+		if ClientPlayerData.serverProfile:getState().leanFactor == -0.75 then
 			return
 		end
 
-		ClientPlayerData.serverProfile.setLeanFactor(holding and 1 or 0)
+		ClientPlayerData.serverProfile.setLeanFactor(holding and 0.75 or 0)
 	end)
 
 	input.SubscribeToInput("LeanRight", function(holding: boolean)
-		if ClientPlayerData.serverProfile:getState().leanFactor == 1 then
+		if ClientPlayerData.serverProfile:getState().leanFactor == 0.75 then
 			return
 		end
 
-		ClientPlayerData.serverProfile.setLeanFactor(holding and -1 or 0)
+		ClientPlayerData.serverProfile.setLeanFactor(holding and -0.75 or 0)
 	end)
 
 	ClientTags:Start()
