@@ -1,4 +1,5 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local SoundService = game:GetService("SoundService")
 
 local CurrentCamera = require(ReplicatedStorage.Shared.CurrentCamera)
 local LocalPlayer = require(ReplicatedStorage.Shared.LocalPlayer)
@@ -21,6 +22,8 @@ local function onSoundPlayed(sound: Sound, dialogId: string)
 		distanceBetween = (CurrentCamera.CFrame.Position - sound.Parent.WorldCFrame.Position).Magnitude
 	elseif sound.Parent:IsA("Model") and sound.Parent.PrimaryPart then
 		distanceBetween = (CurrentCamera.CFrame.Position - sound.Parent.PrimaryPart.Position).Magnitude
+	elseif sound:IsDescendantOf(SoundService) or sound:IsDescendantOf(workspace) then
+		distanceBetween = 0
 	end
 
 	if distanceBetween and distanceBetween <= sound.RollOffMaxDistance then
@@ -38,10 +41,12 @@ return {
 		print(instance)
 
 		if instance.Playing then
+			print(`{instance.Name} is playing`)
 			onSoundPlayed(instance, dialogId)
 		end
 
 		janitor:GiveTask(instance.Played:Connect(function()
+			print(`{instance.Name} has played`)
 			onSoundPlayed(instance, dialogId)
 		end))
 

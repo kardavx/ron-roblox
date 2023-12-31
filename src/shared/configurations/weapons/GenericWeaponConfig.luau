@@ -43,6 +43,10 @@ return {
 			Looped = false,
 			Priority = Enum.AnimationPriority.Action,
 		},
+		Radio = {
+			Looped = true,
+			Priority = Enum.AnimationPriority.Action4,
+		},
 	},
 	headMovementMultiplier = 1,
 	aimingHandleTransformMultiplier = 0.2,

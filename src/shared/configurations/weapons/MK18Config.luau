@@ -20,6 +20,7 @@ local config: WeaponConfigTypes.Config = {
 		ReloadEmpty = 15757528097,
 		LowReady = 15757539020,
 		Use = 15757536137,
+		Radio = 15823314705,
 	},
 	RecoilPunch = 0.7,
 	AdsZoom = -20,

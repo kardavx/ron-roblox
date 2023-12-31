@@ -11,6 +11,7 @@ export type AnimationsUnion =
 	| "Unequip"
 	| "LowReady"
 	| "Use"
+	| "Radio"
 export type AnimationTracks = { [AnimationsUnion]: { AnimationTrack } | AnimationTrack }
 export type Animations = { [AnimationsUnion]: { number } | number }
 
