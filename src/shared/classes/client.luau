@@ -18,6 +18,8 @@ local Projectors = require(ReplicatedStorage.Shared.module.Projectors)
 local HumanoidStateAdjuster = require(ReplicatedStorage.Shared.module.HumanoidStateAdjuster)
 local TOC = require(ReplicatedStorage.Shared.module.TOC)
 local GameTypes = require(ReplicatedStorage.Shared.types.GameTypes)
+local spawnMultipleWithParms = require(ReplicatedStorage.Shared.util.spawnMultipleWithParms)
+local spawnWithParams = require(ReplicatedStorage.Shared.util.spawnWithParams)
 
 require(ReplicatedStorage.Shared.module.Scream)
 
@@ -140,29 +142,39 @@ function Client:UpdateCharacter(character)
 end
 
 function Client:Update(deltaTime: number)
-	self.camera:Update(deltaTime)
-	self.freelook:Update(deltaTime)
-	BodyVisibility:Update(deltaTime, self.loadout:IsWeaponEquipped())
-	DynamicReverb:Update(deltaTime)
-	Ambience:Update(deltaTime)
-	self.loadout:Update(deltaTime)
-	HeadAnimations:Update(deltaTime)
+	-- self.camera:Update(deltaTime)
+	-- self.freelook:Update(deltaTime)
+	-- BodyVisibility:Update(deltaTime, self.loadout:IsWeaponEquipped())
+	-- DynamicReverb:Update(deltaTime)
+	-- Ambience:Update(deltaTime)
+	-- self.loadout:Update(deltaTime)
+	-- HeadAnimations:Update(deltaTime)
+
+	spawnMultipleWithParms({
+		{ self.camera.Update, { self.camera, deltaTime } },
+		{ self.freelook.Update, { self.freelook, deltaTime } },
+		{ BodyVisibility.Update, { BodyVisibility, deltaTime, self.loadout:IsWeaponEquipped() } },
+		{ DynamicReverb.Update, { DynamicReverb, deltaTime } },
+		{ Ambience.Update, { Ambience, deltaTime } },
+		{ self.loadout.Update, { self.loadout, deltaTime } },
+		{ HeadAnimations.Update, { HeadAnimations, deltaTime } },
+	})
 
 	if self.movement then
-		self.movement:Update(deltaTime)
+		spawnWithParams(self.movement.Update, self.movement, deltaTime)
 	end
 end
 
 function Client:UpdateAfterCharacter(deltaTime: number)
-	self.camera:UpdatePhysics(deltaTime)
+	spawnWithParams(self.camera.UpdatePhysics, self.camera, deltaTime)
 end
 
 function Client:UpdatePhysics(deltaTime: number)
-	Lean:Update(deltaTime)
+	spawnWithParams(Lean.Update, Lean, deltaTime)
 end
 
 function Client:PostUpdate(deltaTime: number)
-	Projectors:PostUpdate(deltaTime)
+	spawnWithParams(Projectors.PostUpdate, Projectors, deltaTime)
 end
 
 return Client
