@@ -10,7 +10,13 @@ NPCManager.new()
 local availibleNPCs = { "Tonya", "Patrick" }
 
 for _, npcSpawnPoint: BasePart in CollectionService:GetTagged("NPCSpawnPoint") do
-	NPCManager:CreateNPC("Civilian", chooseRandomFromArray(availibleNPCs), npcSpawnPoint.CFrame)
+	NPCManager:CreateNPC(
+		"Civilian",
+		chooseRandomFromArray(availibleNPCs),
+		npcSpawnPoint.CFrame,
+		math.random(),
+		math.random()
+	)
 end
 
 return table.freeze({})

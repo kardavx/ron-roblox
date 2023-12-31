@@ -77,9 +77,9 @@ function NPCManager:OnArrest(player: Player, character: Model)
 	return npc:Arrest(player)
 end
 
-function NPCManager:CreateNPC(className: string, ...)
-	local npc = require(ServerScriptService.classes.npcs[className]).new()
-	npc:Spawn(...)
+function NPCManager:CreateNPC(className: string, modelName: string, spawnCFrame: CFrame, ...)
+	local npc = require(ServerScriptService.classes.npcs[className]).new(...)
+	npc:Spawn(modelName, spawnCFrame)
 
 	table.insert(self.npcs, npc)
 	return npc

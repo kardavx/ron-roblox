@@ -39,6 +39,7 @@ function NPC:MoveTo(destination: Vector3): ()
 	if self.connections.pathReached then
 		self.connections.pathReached:Disconnect()
 	end
+
 	self.pathFinder:SetGoal(destination)
 	self:SetState("Run")
 
@@ -281,7 +282,7 @@ function NPC:GetEscapeDestination(pivot: CFrame, minDistance: number)
 			nearestDestination = destination
 		end
 	end
-
+	nearestDestination = nearestDestination or destinations[math.random(#destinations)]
 	table.insert(self.lastDestinations, nearestDestination)
 	return nearestDestination
 end
