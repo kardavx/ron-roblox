@@ -10,6 +10,8 @@ export type Producer = Reflex.Producer<State, Actions>
 export type State = {
 	activeDialogs: { { dialogId: string, dialogEnd: number } },
 	talkingThroughRadio: boolean,
+	crouching: boolean,
+	crouchBlockers: { string },
 	DEBUG_COUNT: number,
 }
 
@@ -18,10 +20,15 @@ type Actions = {
 	addDialog: (dialogId: string) -> (),
 	removeDialog: (dialogPosition: number) -> (),
 	setTalkingThroughRadio: (talkingState: boolean) -> (),
+	setCrouching: (crouchState: boolean) -> (),
+	addCrouchBlocker: (blockerId: string) -> (),
+	removeCrouchBlocker: (blockerId: string) -> (),
 }
 
 local DEFAULT_STATE: State = {
 	activeDialogs = {},
+	crouching = false,
+	crouchBlockers = {},
 	talkingThroughRadio = false,
 	DEBUG_COUNT = 0,
 }
@@ -63,6 +70,46 @@ function CreateProducer(initialState: State): Producer
 		setTalkingThroughRadio = function(oldState: State, talkingState: boolean): State
 			local state = table.clone(oldState)
 			state.talkingThroughRadio = talkingState
+
+			return state
+		end,
+
+		setCrouching = function(oldState: State, crouchState: boolean)
+			if #oldState.crouchBlockers > 0 then
+				return oldState
+			end
+
+			local state = table.clone(oldState)
+			state.crouching = crouchState
+
+			return state
+		end,
+
+		addCrouchBlocker = function(oldState: State, blockerId: string)
+			if table.find(oldState.crouchBlockers, blockerId) then
+				return oldState
+			end
+
+			local state = table.clone(oldState)
+			state.crouchBlockers = table.clone(state.crouchBlockers)
+			table.insert(state.crouchBlockers, blockerId)
+
+			if state.crouching == true then
+				state.crouching = false
+			end
+
+			return state
+		end,
+
+		removeCrouchBlocker = function(oldState: State, blockerId: string)
+			local blockerIndex = table.find(oldState.crouchBlockers, blockerId)
+			if not blockerIndex then
+				return oldState
+			end
+
+			local state = table.clone(oldState)
+			state.crouchBlockers = table.clone(state.crouchBlockers)
+			table.remove(state.crouchBlockers, blockerIndex)
 
 			return state
 		end,

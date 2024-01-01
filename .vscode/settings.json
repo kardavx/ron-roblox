@@ -17,7 +17,8 @@
         "ui": "Interface",
         "tags": "Log",
         "renderPipelines": "scripts",
-        "renderNodes": "scripts"
+        "renderNodes": "scripts",
+        "character": "admin"
     },
     "luau-lsp.completion.imports.requireStyle": "alwaysAbsolute",
     "luau-lsp.completion.imports.separateGroupsWithLine": true,

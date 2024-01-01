@@ -94,6 +94,10 @@ function Client.new()
 			keyCode = Enum.KeyCode.G,
 			inputType = "Click",
 		},
+		Crouch = {
+			keyCode = Enum.KeyCode.C,
+			inputType = "Hold",
+		},
 	})
 
 	ClassBag:ReplaceBag({
@@ -117,6 +121,10 @@ function Client.new()
 		end
 
 		ClientPlayerData.serverProfile.setLeanFactor(holding and -0.75 or 0)
+	end)
+
+	input.SubscribeToInput("Crouch", function(holding: boolean)
+		ClientPlayerData.clientProducer.setCrouching(holding)
 	end)
 
 	ClientTags:Start()

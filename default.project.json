@@ -18,6 +18,10 @@
       "StarterPlayerScripts": {
         "$className": "StarterPlayerScripts",
         "$path": "src/client"
+      },
+      "StarterCharacterScripts": {
+        "$className": "StarterCharacterScripts",
+        "$path": "src/character"
       }
     },
     "Workspace": {

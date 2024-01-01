@@ -74,10 +74,8 @@ function RenderPipeline:Update(
 			continue
 		end
 
-		task.spawn(function()
-			finalCFrame = nodeObject:Update(deltaTime, finalCFrame, table.unpack(arguments))
-			updaterFunction(finalCFrame)
-		end)
+		finalCFrame = nodeObject:Update(deltaTime, finalCFrame, table.unpack(arguments))
+		updaterFunction(finalCFrame)
 	end
 end
 

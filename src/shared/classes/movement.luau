@@ -2,6 +2,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local input = require(ReplicatedStorage.Shared.classes.input)
 local movementConfig = require(ReplicatedStorage.Shared.configurations.movementConfig)
+local ClientPlayerData = require(ReplicatedStorage.Shared.module.ClientPlayerData)
 local SignalBag = require(ReplicatedStorage.Shared.module.SignalBag)
 local GameTypes = require(ReplicatedStorage.Shared.types.GameTypes)
 local getMoveDirectionInObjectSpace = require(ReplicatedStorage.Shared.util.getMoveDirectionInObjectSpace)
@@ -43,6 +44,8 @@ export type Object = typeof(setmetatable(
 
 		lastMoveDirection: Vector3,
 		lastPositiveInput: Vector3,
+
+		isLeaning: boolean,
 	},
 	{} :: Class
 ))
@@ -73,6 +76,8 @@ function Movement.new(character: Character, accelerationMultiplier: number, dece
 
 	self.character.Humanoid.WalkSpeed = self.desiredSpeed
 
+	self.isLeaning = false
+
 	self:BindInput()
 
 	return self
@@ -87,9 +92,16 @@ function Movement:BindInput()
 		self.lowReady = lowReadyState
 	end)
 
+	local leaningConnection = ClientPlayerData.serverProfile:subscribe(function(state)
+		return state.leanFactor
+	end, function(newValue: number)
+		self.isLeaning = newValue ~= 0
+	end)
+
 	self.inputJanitor:GiveTask(function()
 		slowWalkConnection:Destroy()
 		lowReadyConnection:Destroy()
+		leaningConnection()
 	end)
 end
 
@@ -98,6 +110,16 @@ function Movement:UpdateSpeed()
 	self.lastDesiredSpeed = self.desiredSpeed
 
 	if moveDirection.Magnitude > 0 then
+		if ClientPlayerData.clientProducer:getState().crouching then
+			if self.slowWalk then
+				self.desiredSpeed = movementConfig.slowCrouchWalkSpeed
+				return
+			end
+
+			self.desiredSpeed = movementConfig.crouchWalkSpeed
+			return
+		end
+
 		if self.slowWalk then
 			self.desiredSpeed = movementConfig.slowWalkSpeed
 			return
@@ -118,6 +140,10 @@ function Movement:Update(deltaTime: number)
 	local moveDirection = getMoveDirectionInObjectSpace()
 
 	self:UpdateSpeed()
+
+	if self.isLeaning then
+		self.desiredSpeed = self.desiredSpeed * movementConfig.leaningWalkspeedMultiplier
+	end
 
 	local angle = math.deg(math.acos(self.lastMoveDirection:Dot(moveDirection)))
 	if angle ~= angle then
