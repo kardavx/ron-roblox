@@ -6,8 +6,8 @@ return {
 		Trained = {
 			Idle = 15877938100,
 			Aim = 15877935129,
-			Shoot = 15877940225,
-			AimShoot = 15877936656,
+			Shoot = 16066306387,
+			AimShoot = 16066298566,
 			Reload = 15877939303,
 		},
 	},
@@ -15,8 +15,8 @@ return {
 		Trained = {
 			Idle = 15877921832,
 			Aim = 15877923422,
-			Shoot = 15877924953,
-			AimShoot = 15877926753,
+			Shoot = 16066342081,
+			AimShoot = 16066337372,
 			Reload = 15877928853,
 		},
 	},

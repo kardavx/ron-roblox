@@ -8,7 +8,7 @@ function CharacterAnimator:GetCharacterScale()
 	return self.character:GetScale()
 end
 
-function CharacterAnimator:PlayAnimation(name: string, ...)
+function CharacterAnimator:PlayAnimation(name: string)
 	if self.lastAnimationTrack then
 		self.lastAnimationTrack:Stop(0.25)
 	end

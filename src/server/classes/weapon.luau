@@ -97,10 +97,6 @@ function Weapon.new(character: Model, weaponName: string, animationPack: weaponA
 end
 
 function Weapon:SetAiming(aiming: boolean)
-	if self.reloading then
-		return
-	end
-
 	self.aiming = aiming
 	if aiming then
 		playAnimationIfNotPlaying(self.animations.Aim)

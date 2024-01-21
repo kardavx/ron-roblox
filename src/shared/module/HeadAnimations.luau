@@ -2,6 +2,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local LocalPlayer = require(ReplicatedStorage.Shared.LocalPlayer)
 local cameraModifier = require(ReplicatedStorage.Shared.classes.camera.cameraModifier)
+local headAnimationConfig = require(ReplicatedStorage.Shared.configurations.headAnimationConfig)
 
 type LocalProperties = {
 	cameraModifier: cameraModifier.Object,
@@ -24,7 +25,16 @@ function HeadAnimations:Update(deltaTime: number)
 		return
 	end
 
-	self.cameraModifier:SetTarget(neck.Transform, 6)
+	local x, y, z = neck.Transform:ToOrientation()
+
+	self.cameraModifier:SetTarget(
+		CFrame.Angles(
+			z * headAnimationConfig.HeadMovementMultiplier,
+			x * headAnimationConfig.HeadMovementMultiplier,
+			y * headAnimationConfig.HeadMovementMultiplier
+		),
+		6
+	)
 end
 
 return HeadAnimations

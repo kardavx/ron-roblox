@@ -150,14 +150,6 @@ function Client:UpdateCharacter(character)
 end
 
 function Client:Update(deltaTime: number)
-	-- self.camera:Update(deltaTime)
-	-- self.freelook:Update(deltaTime)
-	-- BodyVisibility:Update(deltaTime, self.loadout:IsWeaponEquipped())
-	-- DynamicReverb:Update(deltaTime)
-	-- Ambience:Update(deltaTime)
-	-- self.loadout:Update(deltaTime)
-	-- HeadAnimations:Update(deltaTime)
-
 	spawnMultipleWithParms({
 		{ self.camera.Update, { self.camera, deltaTime } },
 		{ self.freelook.Update, { self.freelook, deltaTime } },
@@ -165,6 +157,7 @@ function Client:Update(deltaTime: number)
 		{ DynamicReverb.Update, { DynamicReverb, deltaTime } },
 		{ Ambience.Update, { Ambience, deltaTime } },
 		{ self.loadout.Update, { self.loadout, deltaTime } },
+		{ HeadAnimations.Update, { HeadAnimations, deltaTime } },
 	})
 
 	if self.movement then

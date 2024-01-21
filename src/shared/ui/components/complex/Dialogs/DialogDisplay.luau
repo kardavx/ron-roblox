@@ -3,6 +3,7 @@ local RunService = game:GetService("RunService")
 
 local dialogData = require(ReplicatedStorage.Shared.data.dialogData)
 local UITypes = require(ReplicatedStorage.Shared.types.UITypes)
+local ListLayout = require(ReplicatedStorage.Shared.ui.components.base.ListLayout)
 local Padding = require(ReplicatedStorage.Shared.ui.components.base.Padding)
 local Dialog = require(ReplicatedStorage.Shared.ui.components.complex.Dialogs.Dialog)
 local useProducerAsState = require(ReplicatedStorage.Shared.ui.hook.useProducerAsState)
@@ -45,7 +46,7 @@ local function DialogDisplay(props: Props)
 		Position = UDim2.fromScale(0.5, 1),
 		Size = UDim2.fromScale(0.5, 0.6),
 	}, {
-		React.createElement("UIListLayout", {
+		React.createElement(ListLayout, {
 			HorizontalAlignment = Enum.HorizontalAlignment.Center,
 			VerticalAlignment = Enum.VerticalAlignment.Bottom,
 		}),

@@ -23,4 +23,5 @@
     "luau-lsp.completion.imports.requireStyle": "alwaysAbsolute",
     "luau-lsp.completion.imports.separateGroupsWithLine": true,
     "luau-lsp.completion.imports.enabled": true,
+    "stylua.targetReleaseVersion": "latest",
 }

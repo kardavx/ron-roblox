@@ -1,4 +1,4 @@
-local function spawnWithParams<T>(func: (...T) -> (), ...: T)
+local function spawnWithParams<P>(func: (...P) -> (), ...: P)
 	local params = { ... }
 	task.spawn(function()
 		func(table.unpack(params))
