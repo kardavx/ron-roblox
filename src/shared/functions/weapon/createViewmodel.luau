@@ -6,23 +6,50 @@ local ClientPlayerData = require(ReplicatedStorage.Shared.module.ClientPlayerDat
 local Gloves = require(ReplicatedStorage.Shared.module.Gloves)
 local Watch = require(ReplicatedStorage.Shared.module.Watch)
 local WeaponTypes = require(ReplicatedStorage.Shared.types.WeaponTypes)
-local viewmodelsStorage = ReplicatedStorage.Viewmodels :: Folder
+local createInstance = require(ReplicatedStorage.Shared.util.createInstance)
 
-return function(viewmodelName: string): WeaponTypes.Viewmodel
-	local desiredViewmodel = viewmodelsStorage:FindFirstChild(viewmodelName) :: WeaponTypes.Viewmodel
-	if not desiredViewmodel then
-		error(`Couldn't find viewmodel of name {viewmodelName}`)
+-- local viewmodelsStorage = ReplicatedStorage.Viewmodels :: Folder
+local weaponsStorage = ReplicatedStorage.Weapons :: Folder
+local viewmodel = ReplicatedStorage.Viewmodel
+
+return function(weaponName: string): WeaponTypes.Viewmodel
+	local viewmodelClone = viewmodel:Clone() :: WeaponTypes.Viewmodel
+	local desiredWeapon = weaponsStorage:FindFirstChild(weaponName) :: WeaponTypes.Weapon
+	if not desiredWeapon then
+		error(`Couldn't find weapon of name {weaponName}`)
 	end
 
-	local clonedViewmodel = desiredViewmodel:Clone()
-	clonedViewmodel.Parent = CurrentCamera
+	local clonedWeapon = desiredWeapon:Clone()
+	clonedWeapon.Parent = viewmodelClone
+	clonedWeapon.Name = "weapon"
 
-	for _, descendant: Instance in clonedViewmodel:GetDescendants() do
+	local magPart = clonedWeapon:FindFirstChild("Mag") or clonedWeapon:FindFirstChild("Magazine")
+
+	createInstance("Motor6D", {
+		Part0 = viewmodelClone.HumanoidRootPart,
+		Part1 = clonedWeapon.Handle,
+		Parent = viewmodelClone.HumanoidRootPart,
+		Name = "Handle",
+	})
+	createInstance("Motor6D", {
+		Part0 = magPart,
+		Part1 = viewmodelClone["Left Arm"],
+		Parent = magPart,
+		Name = "Left Arm",
+	})
+	createInstance("Motor6D", {
+		Part0 = clonedWeapon.Handle,
+		Part1 = viewmodelClone["Right Arm"],
+		Parent = clonedWeapon.Handle,
+		Name = "Right Arm",
+	})
+
+	viewmodelClone.Parent = CurrentCamera
+
+	for _, descendant: Instance in viewmodelClone:GetDescendants() do
 		if not descendant:IsA("BasePart") then
 			continue
 		end
-
-		print(`setting {descendant.Name}`)
 
 		descendant.CollisionGroup = "viewmodel"
 		descendant.CanCollide = false
@@ -31,16 +58,15 @@ return function(viewmodelName: string): WeaponTypes.Viewmodel
 	end
 
 	if LocalPlayer.Character then
-		print("Character is there")
 		local BodyColors = LocalPlayer.Character:FindFirstChildOfClass("BodyColors")
 		local Shirt = LocalPlayer.Character:FindFirstChildOfClass("Shirt")
 
 		if BodyColors then
-			BodyColors:Clone().Parent = clonedViewmodel
+			BodyColors:Clone().Parent = viewmodelClone
 		end
 
 		if Shirt then
-			Shirt:Clone().Parent = clonedViewmodel
+			Shirt:Clone().Parent = viewmodelClone
 		end
 	end
 
@@ -51,13 +77,13 @@ return function(viewmodelName: string): WeaponTypes.Viewmodel
 			until ClientPlayerData.serverProfile
 		end
 
-		if not clonedViewmodel then
+		if not viewmodelClone then
 			return
 		end
 
-		Gloves:ApplyToViewmodel(clonedViewmodel, ClientPlayerData.serverProfile:getState().currentGloves)
-		Watch:ApplyToViewmodel(clonedViewmodel, ClientPlayerData.serverProfile:getState().currentWatch)
+		Gloves:ApplyToViewmodel(viewmodelClone, ClientPlayerData.serverProfile:getState().currentGloves)
+		Watch:ApplyToViewmodel(viewmodelClone, ClientPlayerData.serverProfile:getState().currentWatch)
 	end)
 
-	return clonedViewmodel :: WeaponTypes.Viewmodel
+	return viewmodelClone :: WeaponTypes.Viewmodel
 end

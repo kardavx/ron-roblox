@@ -1,11 +1,10 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local ServerScriptService = game:GetService("ServerScriptService")
 
 local camera = require(ReplicatedStorage.Shared.classes.camera.camera)
 local cameraModifier = require(ReplicatedStorage.Shared.classes.camera.cameraModifier)
 local fovModifier = require(ReplicatedStorage.Shared.classes.camera.fovModifier)
 local input = require(ReplicatedStorage.Shared.classes.input)
-local GenericWeaponConfig = require(ReplicatedStorage.Shared.configurations.weapons.GenericWeaponConfig)
+local ClientGenericWeaponConfig = require(ReplicatedStorage.Shared.configurations.weapons.ClientGenericWeaponConfig)
 local createViewmodel = require(ReplicatedStorage.Shared.functions.weapon.createViewmodel)
 local loadAnimationInformation = require(ReplicatedStorage.Shared.functions.weapon.loadAnimationInformation)
 local loadAnimations = require(ReplicatedStorage.Shared.functions.weapon.loadAnimations)
@@ -27,14 +26,22 @@ local WeaponConfigTypes = require(ReplicatedStorage.Shared.types.WeaponConfigTyp
 local WeaponTypes = require(ReplicatedStorage.Shared.types.WeaponTypes)
 local anyAnimationPlaying = require(ReplicatedStorage.Shared.util.animations.anyAnimationPlaying)
 local onAnimationEnded = require(ReplicatedStorage.Shared.util.animations.onAnimationEnded)
+local onCustomLengthAnimationEneded = require(ReplicatedStorage.Shared.util.animations.onCustomLengthAnimationEneded)
 local playAnimation = require(ReplicatedStorage.Shared.util.animations.playAnimation)
 local playAnimationIfNotPlaying = require(ReplicatedStorage.Shared.util.animations.playAnimationIfNotPlaying)
+local scaleTrackToLength = require(ReplicatedStorage.Shared.util.animations.scaleTrackToLength)
 local stopAnimation = require(ReplicatedStorage.Shared.util.animations.stopAnimation)
-local stopAnimationIfPlaying = require(ReplicatedStorage.Shared.util.animations.stopAnimationIfPlaying)
 local stopAnimations = require(ReplicatedStorage.Shared.util.animations.stopAnimations)
 local deepClone = require(ReplicatedStorage.Shared.util.deepClone)
+local Bridgenet2 = require(ReplicatedStorage.package.Bridgenet2)
 local Maid = require(ReplicatedStorage.package.Maid)
 local Promise = require(ReplicatedStorage.package.Promise)
+
+local weaponEquipBridge = Bridgenet2.ClientBridge("Weapon_Equip")
+local weaponUnEquipBridge = Bridgenet2.ClientBridge("Weapon_Unequip")
+local weaponShootBridge = Bridgenet2.ClientBridge("Weapon_Shoot")
+local weaponAimBridge = Bridgenet2.ClientBridge("Weapon_Aim")
+local weaponReloadBridge = Bridgenet2.ClientBridge("Weapon_Reload")
 
 export type Class = {
 	__index: Class,
@@ -82,6 +89,8 @@ export type Object = typeof(setmetatable(
 			[WeaponConfigTypes.AnimationsUnion]: { [number]: { [string]: CFrame } }
 				| { { [number]: { [string]: CFrame } } },
 		},
+
+		reloadSpeedScale: number,
 
 		janitor: Maid.Maid,
 		inputJanitor: Maid.Maid,
@@ -147,8 +156,10 @@ function Weapon.new(config: WeaponConfigTypes.Config)
 	self.inputJanitor = Maid.new()
 	self.config = loadConfig(config)
 	self.viewmodel = createViewmodel(config.ViewmodelName)
-	self.animations = loadAnimations(config, self.viewmodel)
+	self.animations = loadAnimations(config.Animations :: any, self.viewmodel, ClientGenericWeaponConfig.animationInfo)
 	self.animationInformation = loadAnimationInformation(config)
+
+	self.reloadSpeedScale = scaleTrackToLength(self.animations.Reload, self.config.ReloadLength)
 
 	self.janitor:GiveTask(self.viewmodel)
 
@@ -295,6 +306,8 @@ function Weapon:BindInput()
 			self.aiming = false
 			self.adsZoomModifier:SetTarget(0, self.config.AimSpeed)
 		end
+
+		weaponAimBridge:Fire(self.aiming)
 	end)
 
 	local lowReadyConnection = input.SubscribeToInput("LowReady", function(holding: boolean)
@@ -385,13 +398,14 @@ function Weapon:Shoot(): boolean
 	for _, child: Instance in self.viewmodel.weapon.Muzzle:GetChildren() do
 		if child:IsA("ParticleEmitter") then
 			child:Emit()
-		elseif child:IsA("Sound") then
-			child:Play()
 		end
+		-- elseif child:IsA("Sound") then
+		-- 	child:Play()
+		-- end
 	end
 
 	self.camera:Shove(Vector2.new(0, -self.config.RecoilPunch))
-
+	weaponShootBridge:Fire()
 	self:UpdateSlide()
 
 	return true
@@ -399,6 +413,7 @@ end
 
 function Weapon:Equip()
 	self.equipping = true
+	weaponEquipBridge:Fire(self.config.ConfigName)
 	return Promise.new(function(resolve)
 		self.equipped = true
 		playAnimation(self.animations.Idle, 0)
@@ -418,6 +433,7 @@ function Weapon:Unequip()
 	self.adsZoomModifier:SetTarget(0, self.config.AimSpeed)
 	self.equipping = true
 	self.lowReady = false
+	weaponUnEquipBridge:Fire()
 	SignalBag:Fire("LowReady", self.lowReady)
 
 	return Promise.new(function(resolve)
@@ -446,13 +462,15 @@ function Weapon:Reload()
 	end
 
 	self.adsZoomModifier:SetEnabled(false)
+	weaponReloadBridge:Fire()
 
-	onAnimationEnded(animation, function()
+	animation:AdjustSpeed(self.reloadSpeedScale)
+	onCustomLengthAnimationEneded(animation, function()
 		self.config.Ammo = self.config.MaxAmmo
 		self.config.Mags -= 1
 		self.reloading = false
 		self.adsZoomModifier:SetEnabled(true)
-	end, 0)
+	end, self.config.ReloadLength, 0.1, nil, self.reloadSpeedScale)
 end
 
 function Weapon:Destroy()
@@ -515,7 +533,10 @@ function Weapon:Update(deltaTime: number)
 
 	self.fakeCameraModifier:SetTarget(
 		CFrame.new()
-			:Lerp(self.viewmodel.HumanoidRootPart.FakeCamera.Transform, GenericWeaponConfig.headMovementMultiplier),
+			:Lerp(
+				self.viewmodel.HumanoidRootPart.FakeCamera.Transform,
+				ClientGenericWeaponConfig.headMovementMultiplier
+			),
 		0
 	)
 

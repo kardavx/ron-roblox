@@ -6,6 +6,8 @@ local WeaponConfigTypes = require(ReplicatedStorage.Shared.types.WeaponConfigTyp
 
 local config: WeaponConfigTypes.Config = {
 	ViewmodelName = "MK18",
+	ConfigName = "MK18",
+	ServerWeaponType = "Primary",
 	FireRate = 780,
 	MaxAmmo = 30,
 	Ammo = 30,
@@ -22,7 +24,10 @@ local config: WeaponConfigTypes.Config = {
 		Use = 15757536137,
 		Radio = 15823314705,
 	},
+	ReloadLength = 4.25,
 	RecoilPunch = 0.7,
+	ClientScale = 1,
+	ServerScale = 0.4,
 	AdsZoom = -20,
 	AimParts = { "DefaultAimPart" },
 	AimSpeed = 8,

@@ -1,6 +1,5 @@
 local PathfindingService = game:GetService("PathfindingService")
 local RunService = game:GetService("RunService")
-local ServerScriptService = game:GetService("ServerScriptService")
 
 local PathFinder = {}
 local PathFinders = {}
@@ -57,6 +56,7 @@ function PathFinder:FollowWaypoints()
 
 		self.currentWaypoint += 1
 		self:FollowWaypoints()
+		return
 	end)
 
 	if self.currentWaypoint >= #self.waypoints then
@@ -109,7 +109,7 @@ function PathFinder:SetGoal(goal: Vector3): boolean
 	return false
 end
 
-function PathFinder.new(agent: Model, agentInfo: { any } | nil)
+function PathFinder.new(agent: Model)
 	local self = setmetatable({}, PathFinder)
 	self.agent = agent
 	self.humanoid = self.agent:FindFirstChildWhichIsA("Humanoid")

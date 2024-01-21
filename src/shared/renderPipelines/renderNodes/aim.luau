@@ -1,6 +1,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local GenericWeaponConfig = require(ReplicatedStorage.Shared.configurations.weapons.GenericWeaponConfig)
+local ClientGenericWeaponConfig = require(ReplicatedStorage.Shared.configurations.weapons.ClientGenericWeaponConfig)
 local ClassBag = require(ReplicatedStorage.Shared.module.ClassBag)
 local RenderPipelineTypes = require(ReplicatedStorage.Shared.types.RenderPipelineTypes)
 local WeaponTypes = require(ReplicatedStorage.Shared.types.WeaponTypes)
@@ -10,7 +10,8 @@ local Aim: RenderPipelineTypes.NodeClass = {} :: RenderPipelineTypes.NodeClass
 Aim.__index = Aim
 
 local function getTransformWithoutIdle(transform: CFrame, idleCFrame: CFrame)
-	return CFrame.new():Lerp(transform * idleCFrame:Inverse(), GenericWeaponConfig.aimingHandleTransformMultiplier)
+	return CFrame.new()
+		:Lerp(transform * idleCFrame:Inverse(), ClientGenericWeaponConfig.aimingHandleTransformMultiplier)
 end
 
 function Aim.new(): RenderPipelineTypes.NodeObject

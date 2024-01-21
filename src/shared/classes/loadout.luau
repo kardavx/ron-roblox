@@ -3,7 +3,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local LocalPlayer = require(ReplicatedStorage.Shared.LocalPlayer)
 local debug = require(ReplicatedStorage.Shared.classes.debug)
 local input = require(ReplicatedStorage.Shared.classes.input)
-local weaponClient = require(ReplicatedStorage.Shared.classes.weaponClient)
+local weapon = require(ReplicatedStorage.Shared.classes.weapon)
 local Glock17Config = require(ReplicatedStorage.Shared.configurations.weapons.Glock17Config)
 local MK18TacConfig = require(ReplicatedStorage.Shared.configurations.weapons.MK18TacConfig)
 local ClientPlayerData = require(ReplicatedStorage.Shared.module.ClientPlayerData)
@@ -36,7 +36,7 @@ export type Object = typeof(setmetatable(
 			lastWeapon: LoadoutUnion?,
 		},
 		weapons: {
-			[LoadoutUnion]: weaponClient.Object,
+			[LoadoutUnion]: weapon.Object,
 		}?,
 	},
 	{} :: Class
@@ -85,7 +85,7 @@ function Loadout.new()
 end
 
 function Loadout:IsWeaponEquipped()
-	return (self.currentWeapon ~= nil and self.weaponChangeQueued == false)
+	return (self.currentWeapon ~= nil)
 end
 
 function Loadout:BindInput()
@@ -162,8 +162,8 @@ function Loadout:ApplyLoadout(forced: boolean?)
 
 	self.weaponsJanitor:DoCleaning()
 	self.weapons = {
-		Primary = weaponClient.new(MK18TacConfig),
-		Secondary = weaponClient.new(Glock17Config),
+		Primary = weapon.new(MK18TacConfig),
+		Secondary = weapon.new(Glock17Config),
 	}
 
 	for _, singleWeapon in self.weapons do
@@ -185,6 +185,7 @@ end
 function Loadout:Update(deltaTime)
 	if self.weapons then
 		local combinedWeaponsDebugMessage = {
+			`weaponMarkedAsEquipped: {self:IsWeaponEquipped()}`,
 			`weaponChangeQueued: {self.weaponChangeQueued}`,
 			``,
 		}

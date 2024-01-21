@@ -1,8 +1,10 @@
+export type Weapon = Model & {
+	Handle: BasePart,
+	Muzzle: BasePart,
+}
+
 export type Viewmodel = Model & {
-	weapon: Model & {
-		Handle: BasePart,
-		Muzzle: BasePart,
-	},
+	weapon: Weapon,
 	Humanoid: Humanoid & {
 		Animator: Animator,
 	},

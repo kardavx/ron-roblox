@@ -6,6 +6,8 @@ local WeaponConfigTypes = require(ReplicatedStorage.Shared.types.WeaponConfigTyp
 
 local config: WeaponConfigTypes.Config = {
 	ViewmodelName = "Glock17",
+	ConfigName = "Glock17",
+	ServerWeaponType = "Secondary",
 	FireRate = 600,
 	MaxAmmo = 17,
 	Ammo = 17,
@@ -23,7 +25,10 @@ local config: WeaponConfigTypes.Config = {
 		Use = 15784231195,
 		Radio = 15823284406,
 	},
+	ReloadLength = 2,
 	RecoilPunch = 0.2,
+	ClientScale = 1,
+	ServerScale = 1.125,
 	AdsZoom = -10,
 	AimParts = { "DefaultAimPart" },
 	AimSpeed = 11,

@@ -6,5 +6,5 @@ return {
 	normalSpeed = 8,
 	lowReadySpeed = 12,
 	turnDecelerationMultiplier = 4,
-	leaningWalkspeedMultiplier = 0.75,
+	leaningWalkspeedMultiplier = 0.6,
 }

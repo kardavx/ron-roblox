@@ -10,7 +10,7 @@ local function createIfMissing(bridgeName: string)
 	end
 end
 
-local function OnBridge(expectedPlayer: Player, bridgeName: string, onBridge: (...unknown) -> ())
+local function OnBridge(expectedPlayer: Player, bridgeName: string, onBridge: (...any) -> ())
 	createIfMissing(bridgeName)
 	local bridge = bridges[bridgeName]
 	bridge:Connect(function(player: Player, ...)

@@ -165,7 +165,6 @@ function Client:Update(deltaTime: number)
 		{ DynamicReverb.Update, { DynamicReverb, deltaTime } },
 		{ Ambience.Update, { Ambience, deltaTime } },
 		{ self.loadout.Update, { self.loadout, deltaTime } },
-		{ HeadAnimations.Update, { HeadAnimations, deltaTime } },
 	})
 
 	if self.movement then
