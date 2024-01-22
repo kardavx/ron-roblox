@@ -3,9 +3,14 @@ local RunService = game:GetService("RunService")
 
 local LocalPlayer = require(ReplicatedStorage.Shared.LocalPlayer)
 local CharacterTypes = require(ReplicatedStorage.Shared.types.CharacterTypes)
+local UITypes = require(ReplicatedStorage.Shared.types.UITypes)
+local useProducerAsState = require(ReplicatedStorage.Shared.ui.hook.useProducerAsState)
 local Maid = require(ReplicatedStorage.package.Maid)
 local React = require(ReplicatedStorage.package.React)
-type Props = {}
+
+type Props = {
+	common: UITypes.CommonProps,
+}
 
 local updateInterval = 0.1
 
@@ -37,9 +42,13 @@ local function getLimbs(dummy: CharacterTypes.Dummy): { [string]: BasePart }
 	return limbs
 end
 
-local function Status()
+local function Status(props: Props)
 	local nextUpdateTick, setNextUpdateTick = React.useBinding(tick())
 	local ref = React.useRef(nil)
+
+	local hudTransparency = useProducerAsState(props.common.clientState, function(state)
+		return state.globalHUDTransparency
+	end)
 
 	React.useEffect(function()
 		local maid = Maid.new()
@@ -97,19 +106,21 @@ local function Status()
 		return function()
 			maid:Destroy()
 		end
-	end)
+	end, { ref })
 
 	return React.createElement("ViewportFrame", {
 		ref = ref,
 		AnchorPoint = Vector2.new(0, 1),
-		Position = UDim2.fromScale(0.01, 0.97),
-		Ambient = Color3.new(0.847059, 0.847059, 0.847059),
+		Position = UDim2.fromScale(0, 1),
+		Ambient = Color3.new(1.000000, 1.000000, 1.000000),
 		LightColor = Color3.new(1, 1, 1),
+		LightDirection = Vector3.new(0, 0, 1),
+		ImageTransparency = hudTransparency,
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(0.2, 0.2),
 	}, {
 		React.createElement("UIAspectRatioConstraint", {
-			AspectRatio = 9 / 10,
+			AspectRatio = 9 / 12,
 		}),
 	})
 end

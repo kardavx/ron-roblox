@@ -70,7 +70,7 @@ local function SingleMag(props: Props)
 		}),
 
 		React.createElement("Frame", {
-			Size = UDim2.new(0.7, 0, 0, 5),
+			Size = UDim2.new(0.7, 0, 0, 2),
 			BackgroundColor3 = Color3.new(1.000000, 1.000000, 1.000000),
 			BorderSizePixel = 0,
 			Visible = props.current,

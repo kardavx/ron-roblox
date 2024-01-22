@@ -57,5 +57,11 @@ return function(props: Props, deps: any)
 		end
 	end, deps)
 
-	return position, setTarget
+	return position,
+		setTarget,
+		function(forcedPosition)
+			setTarget(forcedPosition)
+			setPosition(forcedPosition)
+			setVelocity(0)
+		end
 end

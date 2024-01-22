@@ -11,6 +11,8 @@ export type State = {
 	activeDialogs: { { dialogId: string, dialogEnd: number } },
 	talkingThroughRadio: boolean,
 	crouching: boolean,
+	nvgBroughtDown: boolean,
+	globalHUDTransparency: number,
 	crouchBlockers: { string },
 	DEBUG_COUNT: number,
 }
@@ -22,12 +24,15 @@ type Actions = {
 	setTalkingThroughRadio: (talkingState: boolean) -> (),
 	setCrouching: (crouchState: boolean) -> (),
 	addCrouchBlocker: (blockerId: string) -> (),
+	setNVGBroughtDown: (broughtDown: boolean) -> (),
 	removeCrouchBlocker: (blockerId: string) -> (),
 }
 
 local DEFAULT_STATE: State = {
 	activeDialogs = {},
 	crouching = false,
+	nvgBroughtDown = false,
+	globalHUDTransparency = 0.3,
 	crouchBlockers = {},
 	talkingThroughRadio = false,
 	DEBUG_COUNT = 0,
@@ -81,6 +86,13 @@ function CreateProducer(initialState: State): Producer
 
 			local state = table.clone(oldState)
 			state.crouching = crouchState
+
+			return state
+		end,
+
+		setNVGBroughtDown = function(oldState: State, broughtDown: boolean)
+			local state = table.clone(oldState)
+			state.nvgBroughtDown = broughtDown
 
 			return state
 		end,
