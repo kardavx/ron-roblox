@@ -43,7 +43,9 @@ function ClassBag:GetClass<T>(className: string, expect: boolean?): T & GameType
 end
 
 function ClassBag:AddToBag(classes: UnknownClasses)
-	self.classes = mergeDictionaries(table.clone(self.classes), classes)
+	for classId, object in classes do
+		self.classes[classId] = object
+	end
 end
 
 --- Used only with client.luau

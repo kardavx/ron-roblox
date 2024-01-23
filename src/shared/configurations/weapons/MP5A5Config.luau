@@ -20,6 +20,8 @@ local config: WeaponConfigTypes.Config = {
 		Equip = 15757510671,
 		Unequip = 15757515092,
 		ReloadEmpty = 15757528097,
+		MagCheck = 16074349679,
+
 		LowReady = 15757539020,
 		Use = 15757536137,
 		Radio = 15823314705,

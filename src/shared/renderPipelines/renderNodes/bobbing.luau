@@ -11,14 +11,14 @@ local Bobbing: RenderPipelineTypes.NodeClass = {} :: RenderPipelineTypes.NodeCla
 Bobbing.__index = Bobbing
 
 local walkspeedDivider = 1.7
-local bobbingMultiplier = 50
+local bobbingMultiplier = 7
 
 function Bobbing.new(): RenderPipelineTypes.NodeObject
 	local self = setmetatable({}, Bobbing)
 
 	self.spring = spring.new(Vector3.zero)
-	self.spring.Damper = 1
-	self.spring.Speed = 15
+	self.spring.Damper = 0.2
+	self.spring.Speed = 8
 
 	self.sines = {
 		x = sine.new(1, 6, 0, 0.005),
@@ -40,11 +40,23 @@ function Bobbing:PreUpdate(deltaTime: number)
 	self.spring:Impulse(movementSway * primaryPart.AssemblyLinearVelocity.Magnitude * deltaTime * bobbingMultiplier)
 end
 
-function Bobbing:Update(deltaTime: number, currentCFrame: CFrame, viewmodel: WeaponTypes.Viewmodel): CFrame
+function Bobbing:Update(
+	deltaTime: number,
+	currentCFrame: CFrame,
+	viewmodel: WeaponTypes.Viewmodel,
+	animationInfo,
+	currentAimPart: BasePart,
+	isAiming: boolean,
+	clientScale: number
+): CFrame
 	return offsetFromPivot(
 		currentCFrame,
 		viewmodel.weapon.Handle.CFrame,
-		CFrame.Angles(self.spring.Value.Y, self.spring.Value.X, self.spring.Value.Z)
+		CFrame.new():Lerp(
+			CFrame.new(-self.spring.Value.X * 0.5, -self.spring.Value.Y * 1.3, -self.spring.Value.Z * 0.5)
+				* CFrame.Angles(self.spring.Value.Y, self.spring.Value.X, self.spring.Value.Z),
+			clientScale
+		)
 	)
 end
 

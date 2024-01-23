@@ -9,6 +9,7 @@ export type AnimationsUnion =
 	| "Empty"
 	| "Equip"
 	| "Unequip"
+	| "MagCheck"
 	| "LowReady"
 	| "Use"
 	| "Radio"

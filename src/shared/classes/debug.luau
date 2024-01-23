@@ -21,7 +21,7 @@ local function debugUI(UIProps: UIProps)
 	}, {
 		React.createElement(ListLayout, {
 			Padding = 0,
-			OrderedBy = Enum.SortOrder.LayoutOrder,
+			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 
 		ReactFor(UIProps.message, function(message: string, key: number)
@@ -33,6 +33,7 @@ local function debugUI(UIProps: UIProps)
 				RichText = true,
 				Name = key,
 				LayoutOrder = key,
+				Visible = false,
 				TextSize = 12,
 				TextColor3 = Color3.new(1.000000, 1.000000, 1.000000),
 				Size = UDim2.fromOffset(0, 0),

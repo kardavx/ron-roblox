@@ -37,13 +37,29 @@ local function NVG(props: Props)
 		return state.nvgBroughtDown
 	end)
 
-	local nvgFactor, setNvgFactor, setNvgFactorPosition = useSpring({ initialValue = 0, speed = 5 })
+	local nvgFactor, setNvgFactor, setNvgFactorPosition = useSpring({ initialValue = 1, speed = 20 })
 
 	setNvgFactorPosition(0)
 	setNvgFactor(1)
 
 	React.useEffect(function()
 		local maid = Maid.new()
+
+		local lightContainer = Instance.new("Part")
+		lightContainer.Parent = CurrentCamera
+		lightContainer.Anchored = true
+		lightContainer.CanCollide = false
+		lightContainer.CanQuery = false
+		lightContainer.CanTouch = false
+		lightContainer.Size = Vector3.new(0.1, 0.1, 0.1)
+		lightContainer.Transparency = 1
+
+		local nvgLight = Instance.new("PointLight")
+		nvgLight.Parent = lightContainer
+		nvgLight.Brightness = 0.1
+		nvgLight.Shadows = true
+		nvgLight.Range = 10
+		nvgLight.Enabled = nvgBroughtDown
 
 		local nvgColorCorrection = Instance.new("ColorCorrectionEffect")
 		nvgColorCorrection.Name = "NVG"
@@ -61,16 +77,24 @@ local function NVG(props: Props)
 			props.common.clientState.setNVGBroughtDown(not props.common.clientState:getState().nvgBroughtDown)
 		end, false, Enum.KeyCode.N)
 
+		maid:GiveTask(lightContainer)
+		maid:GiveTask(nvgLight)
 		maid:GiveTask(nvgColorCorrection)
 		maid:GiveTask(RunService.RenderStepped:Connect(function(deltaTime: number)
-			local alpha = nvgBroughtDown and 2 - nvgFactor:getValue() or 1 + nvgFactor:getValue()
+			local desiredBrightness =
+				lerpNumber(nvgBroughtDown and 2 or -3, nvgBroughtDown and 1 or 0, nvgFactor:getValue())
+			local desiredContrast =
+				lerpNumber(nvgBroughtDown and -1 or 2, nvgBroughtDown and 1 or 0, nvgFactor:getValue())
+			local desiredCompensation =
+				lerpNumber(nvgBroughtDown and 3 or -3, nvgBroughtDown and 1.35 or 0, nvgFactor:getValue())
 
-			nvgColorCorrection.Brightness = lerpNumber(nvgColorCorrection.Brightness, nvgBroughtDown and 1 or 0, alpha)
-			nvgColorCorrection.Contrast = lerpNumber(nvgColorCorrection.Contrast, nvgBroughtDown and 1 or 0, alpha)
-			nvgColorCorrection.Saturation = lerpNumber(nvgColorCorrection.Saturation, nvgBroughtDown and -1 or 0, alpha)
-
+			nvgColorCorrection.Brightness = lerpNumber(nvgColorCorrection.Brightness, desiredBrightness, 5 * deltaTime)
+			nvgColorCorrection.Contrast = lerpNumber(nvgColorCorrection.Contrast, desiredContrast, 5 * deltaTime)
 			Lighting.ExposureCompensation =
-				lerpNumber(Lighting.ExposureCompensation, nvgBroughtDown and 1.35 or 0, alpha)
+				lerpNumber(Lighting.ExposureCompensation, desiredCompensation, 5 * deltaTime)
+
+			nvgColorCorrection.Saturation = nvgBroughtDown and -1 or 0
+			lightContainer.CFrame = CurrentCamera.CFrame
 		end))
 
 		return function()
@@ -102,10 +126,11 @@ local function NVG(props: Props)
 		}),
 
 		React.createElement("ImageLabel", {
-			Image = "rbxassetid://15896390237",
+			Image = "rbxassetid://16074488698",
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			Position = UDim2.fromScale(0.5, 0.5),
-			Size = UDim2.fromScale(1, 1),
+			Size = UDim2.fromScale(1.1, 1),
+			ImageTransparency = 0.05,
 			Visible = nvgBroughtDown,
 			BackgroundTransparency = 1,
 		}),

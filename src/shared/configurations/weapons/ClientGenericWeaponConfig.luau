@@ -47,6 +47,10 @@ return {
 			Looped = true,
 			Priority = Enum.AnimationPriority.Action4,
 		},
+		MagCheck = {
+			Looped = false,
+			Priority = Enum.AnimationPriority.Action2,
+		},
 	},
 	headMovementMultiplier = 1,
 	aimingHandleTransformMultiplier = 0.2,

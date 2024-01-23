@@ -20,6 +20,8 @@ local config: WeaponConfigTypes.Config = {
 		Equip = 15784166307,
 		Unequip = 15784215352,
 		ReloadEmpty = 15784428489,
+		MagCheck = 16074349679,
+
 		Empty = 15784282263,
 		LowReady = 15784220515,
 		Use = 15784231195,
@@ -31,7 +33,7 @@ local config: WeaponConfigTypes.Config = {
 	ServerScale = 1.125,
 	AdsZoom = -10,
 	AimParts = { "DefaultAimPart" },
-	AimSpeed = 11,
+	AimSpeed = 8,
 	AvailibleFiremodes = { "Semi" },
 	FireMode = "Semi",
 }

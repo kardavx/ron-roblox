@@ -5,6 +5,7 @@ local debug = require(ReplicatedStorage.Shared.classes.debug)
 local input = require(ReplicatedStorage.Shared.classes.input)
 local weapon = require(ReplicatedStorage.Shared.classes.weapon)
 local Glock17Config = require(ReplicatedStorage.Shared.configurations.weapons.Glock17Config)
+local MK18Config = require(ReplicatedStorage.Shared.configurations.weapons.MK18Config)
 local MK18TacConfig = require(ReplicatedStorage.Shared.configurations.weapons.MK18TacConfig)
 local MP5A5Config = require(ReplicatedStorage.Shared.configurations.weapons.MP5A5Config)
 local ClientPlayerData = require(ReplicatedStorage.Shared.module.ClientPlayerData)
@@ -163,7 +164,7 @@ function Loadout:ApplyLoadout(forced: boolean?)
 
 	self.weaponsJanitor:DoCleaning()
 	self.weapons = {
-		Primary = weapon.new(MP5A5Config),
+		Primary = weapon.new(MK18Config),
 		Secondary = weapon.new(Glock17Config),
 	}
 

@@ -54,6 +54,7 @@ export type Class = {
 	UpdateAimParts: (self: Object) -> (),
 	Reload: (self: Object) -> (),
 	Shoot: (self: Object) -> boolean,
+	CheckMag: (self: Object) -> (),
 	UpdateSlide: (self: Object, forcePosition: boolean?) -> (),
 	UpdateNextShootTick: (self: Object) -> (),
 	UpdateLowReady: (self: Object) -> (),
@@ -70,6 +71,7 @@ export type Object = typeof(setmetatable(
 		equipping: boolean,
 		equipped: boolean,
 		reloading: boolean,
+		magChecking: boolean,
 		shootRequest: boolean,
 		aiming: boolean,
 
@@ -156,11 +158,12 @@ function Weapon.new(config: WeaponConfigTypes.Config)
 	self.inputJanitor = Maid.new()
 	self.config = loadConfig(config)
 	self.viewmodel = createViewmodel(config.ViewmodelName)
+	self.viewmodel:ScaleTo(self.config.ClientScale)
+
 	self.animations = loadAnimations(config.Animations :: any, self.viewmodel, ClientGenericWeaponConfig.animationInfo)
 	self.animationInformation = loadAnimationInformation(config)
 
 	self.reloadSpeedScale = scaleTrackToLength(self.animations.Reload, self.config.ReloadLength)
-
 	self.janitor:GiveTask(self.viewmodel)
 
 	self.janitor:GiveTask(function()
@@ -214,6 +217,10 @@ function Weapon:CanDoAction(respect: RespectTable | "All")
 
 	if respect == "All" or table.find(respect, "Reloading") then
 		if self.reloading then
+			return false
+		end
+
+		if self.magChecking then
 			return false
 		end
 	end
@@ -322,6 +329,14 @@ function Weapon:BindInput()
 		end
 	end)
 
+	local magCheckConnection = input.SubscribeToInput("MagCheck", function(holding: boolean)
+		if not self:CanDoAction({ "Equip", "Equipping", "Reloading" }) then
+			return
+		end
+
+		self:CheckMag()
+	end)
+
 	local addExternalLowReadyConnection = SignalBag:Connect("EnableLowReadyExternally", function(enablerId: string)
 		self:AddLowReadyEnabler(enablerId)
 	end)
@@ -360,6 +375,7 @@ function Weapon:BindInput()
 		addExternalLowReadyConnection:Destroy()
 		removeExternalLowReadyConnection:Destroy()
 		talkingThroughRadioConnection()
+		magCheckConnection:Destroy()
 	end)
 end
 
@@ -383,6 +399,16 @@ function Weapon:UpdateSlide(forcePosition: boolean?)
 	else
 		stopAnimation(self.animations.Empty, 0)
 	end
+end
+
+function Weapon:CheckMag()
+	self.adsZoomModifier:SetEnabled(false)
+	self.magChecking = true
+
+	onAnimationEnded(self.animations.MagCheck, function()
+		self.magChecking = false
+		self.adsZoomModifier:SetEnabled(true)
+	end)
 end
 
 function Weapon:Shoot(): boolean
@@ -523,9 +549,7 @@ function Weapon:Update(deltaTime: number)
 
 			self:UpdateNextShootTick()
 		else
-			if not actionPermitted then
-				self.shootRequest = false
-			elseif self.config.FireMode == "Semi" and not tickElapsed then
+			if not actionPermitted or (self.config.FireMode == "Semi" and not tickElapsed) then
 				self.shootRequest = false
 			end
 		end
@@ -553,9 +577,18 @@ function Weapon:Update(deltaTime: number)
 			self.animationInformation
 		)
 
-		self.renderPipeline:Update(deltaTime, self.camera.rawCameraCFrame, function(currentCFrame: CFrame)
-			self.viewmodel:PivotTo(currentCFrame)
-		end, self.viewmodel, self.animationInformation, self.aimParts[self.currentAimPart], self.aiming)
+		self.renderPipeline:Update(
+			deltaTime,
+			self.camera.rawCameraCFrame,
+			function(currentCFrame: CFrame)
+				self.viewmodel:PivotTo(currentCFrame)
+			end,
+			self.viewmodel,
+			self.animationInformation,
+			self.aimParts[self.currentAimPart],
+			self.aiming,
+			self.config.ClientScale
+		)
 
 		self.renderPipeline:PostUpdate(deltaTime, self.viewmodel, self.aimParts[self.currentAimPart], self.aiming)
 	else

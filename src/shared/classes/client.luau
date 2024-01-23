@@ -98,6 +98,10 @@ function Client.new()
 			keyCode = Enum.KeyCode.C,
 			inputType = "Hold",
 		},
+		MagCheck = {
+			keyCode = Enum.KeyCode.B,
+			inputType = "Click",
+		},
 	})
 
 	ClassBag:ReplaceBag({
@@ -106,6 +110,10 @@ function Client.new()
 
 	self.loadout = loadout.new()
 	self.freelook = freelook.new()
+
+	ClassBag:AddToBag({
+		freelook = self.freelook,
+	})
 
 	input.SubscribeToInput("LeanLeft", function(holding: boolean)
 		if ClientPlayerData.serverProfile:getState().leanFactor == -0.75 then
