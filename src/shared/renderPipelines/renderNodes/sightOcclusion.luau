@@ -59,12 +59,13 @@ function Move:PostUpdate(deltaTime: number, viewmodel: WeaponTypes.Viewmodel)
 						continue
 					end
 
+					toHide.Transparency = stateToTransprency.ToHide[currentState]
 					local tween = TweenService:Create(
 						toHide,
 						hideTweenInfo,
 						{ Transparency = stateToTransprency.ToHide[currentState] }
 					)
-					tween:Play()
+					-- tween:Play()
 
 					self.tweenJanitor:GiveTask(function()
 						tween:Pause()
@@ -79,14 +80,14 @@ function Move:PostUpdate(deltaTime: number, viewmodel: WeaponTypes.Viewmodel)
 						continue
 					end
 
-					print(stateToTransprency.ToShow[currentState])
 
+					toShow.Transparency = stateToTransprency.ToShow[currentState]
 					local tween = TweenService:Create(
 						toShow,
 						hideTweenInfo,
 						{ Transparency = stateToTransprency.ToShow[currentState] }
 					)
-					tween:Play()
+					-- tween:Play()
 
 					self.tweenJanitor:GiveTask(function()
 						tween:Pause()

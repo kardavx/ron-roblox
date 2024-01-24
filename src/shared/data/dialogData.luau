@@ -38,4 +38,9 @@ return {
 		Text = "Hey guys, this is TOC",
 		Name = "TOC",
 	},
+	TOC_ACKNOWLEDGE_01 = {
+		Occlusion = "Friendly",
+		Text = "Uh, affirmative entry team",
+		Name = "TOC",
+	},
 } :: { [string]: DialogTypes.DialogData }

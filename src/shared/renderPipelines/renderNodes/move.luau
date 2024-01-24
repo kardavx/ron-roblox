@@ -27,8 +27,16 @@ function Move:PreUpdate(deltaTime: number)
 	self.current = self.current:Lerp(self.target, 2 * deltaTime)
 end
 
-function Move:Update(deltaTime: number, currentCFrame: CFrame, viewmodel: WeaponTypes.Viewmodel): CFrame
-	return currentCFrame * self.current
+function Move:Update(
+	deltaTime: number,
+	currentCFrame: CFrame,
+	viewmodel: WeaponTypes.Viewmodel,
+	animationInfo,
+	currentAimPart: BasePart,
+	isAiming: boolean,
+	clientScale: number
+): CFrame
+	return currentCFrame * CFrame.new():Lerp(self.current, clientScale)
 end
 
 return Move

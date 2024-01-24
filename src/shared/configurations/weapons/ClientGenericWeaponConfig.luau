@@ -52,15 +52,22 @@ return {
 			Priority = Enum.AnimationPriority.Action2,
 		},
 	},
+	genericSounds = {
+		AimUp = 4615180894,
+		AimDown = 3432364020,
+		Click = 743780661,
+		Equip = 8169246285,
+		MagDrop = 166084088,
+		MagGrab = 5750591807,
+		MagIn = 4681157223,
+		MagOut = 4681158033,
+		MagPouchIn = 6276676295,
+		MagPouchOut = 4681162356,
+		SlidePull = 4631203170,
+		SlideRelease = 4631203302,
+		Movement1 = 4085850946,
+		Movement2 = 4085851292,
+	},
 	headMovementMultiplier = 1,
 	aimingHandleTransformMultiplier = 0.2,
-} :: {
-	animationInfo: {
-		[WeaponConfigTypes.AnimationsUnion]: {
-			Looped: boolean,
-			Priority: Enum.AnimationPriority,
-		},
-	},
-	aimingHandleTransformMultiplier: number,
-	headMovementMultiplier: number,
 }

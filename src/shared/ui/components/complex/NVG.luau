@@ -45,17 +45,26 @@ local function NVG(props: Props)
 	React.useEffect(function()
 		local maid = Maid.new()
 
-		local lightContainer = Instance.new("Part")
-		lightContainer.Parent = CurrentCamera
-		lightContainer.Anchored = true
-		lightContainer.CanCollide = false
-		lightContainer.CanQuery = false
-		lightContainer.CanTouch = false
-		lightContainer.Size = Vector3.new(0.1, 0.1, 0.1)
-		lightContainer.Transparency = 1
+		local container = Instance.new("Part")
+		container.Parent = CurrentCamera
+		container.Anchored = true
+		container.CanCollide = false
+		container.CanQuery = false
+		container.CanTouch = false
+		container.Size = Vector3.new(0.1, 0.1, 0.1)
+		container.Transparency = 1
+
+		if nvgBroughtDown then
+			local sound = Instance.new("Sound")
+			sound.SoundId = "rbxassetid://376178316"
+			sound.Parent = container
+
+			maid:GiveTask(sound)
+			sound:Play()
+		end
 
 		local nvgLight = Instance.new("PointLight")
-		nvgLight.Parent = lightContainer
+		nvgLight.Parent = container
 		nvgLight.Brightness = 0.1
 		nvgLight.Shadows = true
 		nvgLight.Range = 10
@@ -77,16 +86,16 @@ local function NVG(props: Props)
 			props.common.clientState.setNVGBroughtDown(not props.common.clientState:getState().nvgBroughtDown)
 		end, false, Enum.KeyCode.N)
 
-		maid:GiveTask(lightContainer)
+		maid:GiveTask(container)
 		maid:GiveTask(nvgLight)
 		maid:GiveTask(nvgColorCorrection)
 		maid:GiveTask(RunService.RenderStepped:Connect(function(deltaTime: number)
 			local desiredBrightness =
-				lerpNumber(nvgBroughtDown and 2 or -3, nvgBroughtDown and 1 or 0, nvgFactor:getValue())
+				lerpNumber(nvgBroughtDown and 5 or -3, nvgBroughtDown and 1 or 0, nvgFactor:getValue())
 			local desiredContrast =
-				lerpNumber(nvgBroughtDown and -1 or 2, nvgBroughtDown and 1 or 0, nvgFactor:getValue())
+				lerpNumber(nvgBroughtDown and -2 or 2, nvgBroughtDown and 1 or 0, nvgFactor:getValue())
 			local desiredCompensation =
-				lerpNumber(nvgBroughtDown and 3 or -3, nvgBroughtDown and 1.35 or 0, nvgFactor:getValue())
+				lerpNumber(nvgBroughtDown and 5 or -3, nvgBroughtDown and 1.35 or 0, nvgFactor:getValue())
 
 			nvgColorCorrection.Brightness = lerpNumber(nvgColorCorrection.Brightness, desiredBrightness, 5 * deltaTime)
 			nvgColorCorrection.Contrast = lerpNumber(nvgColorCorrection.Contrast, desiredContrast, 5 * deltaTime)
@@ -94,7 +103,7 @@ local function NVG(props: Props)
 				lerpNumber(Lighting.ExposureCompensation, desiredCompensation, 5 * deltaTime)
 
 			nvgColorCorrection.Saturation = nvgBroughtDown and -1 or 0
-			lightContainer.CFrame = CurrentCamera.CFrame
+			container.CFrame = CurrentCamera.CFrame
 		end))
 
 		return function()

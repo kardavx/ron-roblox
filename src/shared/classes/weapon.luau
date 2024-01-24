@@ -4,6 +4,7 @@ local camera = require(ReplicatedStorage.Shared.classes.camera.camera)
 local cameraModifier = require(ReplicatedStorage.Shared.classes.camera.cameraModifier)
 local fovModifier = require(ReplicatedStorage.Shared.classes.camera.fovModifier)
 local input = require(ReplicatedStorage.Shared.classes.input)
+local weaponSounds = require(ReplicatedStorage.Shared.classes.weaponSounds)
 local ClientGenericWeaponConfig = require(ReplicatedStorage.Shared.configurations.weapons.ClientGenericWeaponConfig)
 local createViewmodel = require(ReplicatedStorage.Shared.functions.weapon.createViewmodel)
 local loadAnimationInformation = require(ReplicatedStorage.Shared.functions.weapon.loadAnimationInformation)
@@ -92,6 +93,8 @@ export type Object = typeof(setmetatable(
 				| { { [number]: { [string]: CFrame } } },
 		},
 
+		sounds: weaponSounds.Object,
+
 		reloadSpeedScale: number,
 
 		janitor: Maid.Maid,
@@ -160,8 +163,11 @@ function Weapon.new(config: WeaponConfigTypes.Config)
 	self.viewmodel = createViewmodel(config.ViewmodelName)
 	self.viewmodel:ScaleTo(self.config.ClientScale)
 
+	self.sounds = weaponSounds.new(self.config.Sounds, self.viewmodel.PrimaryPart)
 	self.animations = loadAnimations(config.Animations :: any, self.viewmodel, ClientGenericWeaponConfig.animationInfo)
 	self.animationInformation = loadAnimationInformation(config)
+
+	self.sounds:AttachToAnimations(self.animations)
 
 	self.reloadSpeedScale = scaleTrackToLength(self.animations.Reload, self.config.ReloadLength)
 	self.janitor:GiveTask(self.viewmodel)
@@ -169,23 +175,17 @@ function Weapon.new(config: WeaponConfigTypes.Config)
 	self.janitor:GiveTask(function()
 		self.fakeCameraModifier:Destroy()
 		self.adsZoomModifier:Destroy()
-	end)
-
-	self.janitor:GiveTask(function()
 		self.inputJanitor:Destroy()
+		self.sounds:Destroy()
 	end)
 
 	for _, animationTrack in self.animations do
 		if type(animationTrack) == "table" then
 			for _, singleTrack in animationTrack do
-				self.janitor:GiveTask(function()
-					singleTrack:Destroy()
-				end)
+				self.janitor:GiveTask(singleTrack)
 			end
 		else
-			self.janitor:GiveTask(function()
-				animationTrack:Destroy()
-			end)
+			self.janitor:GiveTask(animationTrack)
 		end
 	end
 
@@ -307,9 +307,11 @@ function Weapon:BindInput()
 			if self.lowReady then
 				return
 			end
+			self.sounds:Play("AimUp")
 			self.aiming = true
 			self.adsZoomModifier:SetTarget(self.config.AdsZoom, self.config.AimSpeed)
 		else
+			self.sounds:Play("AimDown")
 			self.aiming = false
 			self.adsZoomModifier:SetTarget(0, self.config.AimSpeed)
 		end

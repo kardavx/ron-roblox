@@ -4,6 +4,9 @@ export type Weapon = Model & {
 }
 
 export type Viewmodel = Model & {
+	attachmentNodes: Folder & {
+		sight: BasePart,
+	},
 	weapon: Weapon,
 	Humanoid: Humanoid & {
 		Animator: Animator,

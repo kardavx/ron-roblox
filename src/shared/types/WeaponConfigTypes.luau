@@ -16,6 +16,24 @@ export type AnimationsUnion =
 export type AnimationTracks = { [AnimationsUnion]: { AnimationTrack } | AnimationTrack }
 export type Animations = { [AnimationsUnion]: { number } | number }
 
+export type SoundUnion =
+	"AimUp"
+	| "AimDown"
+	| "Click"
+	| "Equip"
+	| "MagDrop"
+	| "MagGrab"
+	| "MagIn"
+	| "MagOut"
+	| "MagPouchIn"
+	| "MagPouchOut"
+	| "SlidePull"
+	| "SlideRelease"
+	| "Movement1"
+	| "Movement2"
+
+export type Sounds = { [SoundUnion]: number }
+
 export type Config = {
 	ViewmodelName: string,
 	ConfigName: string,
@@ -24,7 +42,8 @@ export type Config = {
 	MaxAmmo: number,
 	Ammo: number,
 	Mags: number,
-	Animations: Animations?,
+	Animations: Animations,
+	Sounds: Sounds,
 	ReloadLength: number,
 	RecoilPunch: number,
 	AimParts: { string },

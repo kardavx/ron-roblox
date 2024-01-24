@@ -39,19 +39,13 @@ function Sway:Update(
 ): CFrame
 	return offsetFromPivot(
 		currentCFrame
-			* CFrame.new():Lerp(
-				CFrame.new(0, (-math.abs(self.spring.Value.x) * 0.5), 0)
-					* CFrame.Angles(0, smoothClamp(self.spring.Value.x * 1.2, -0.4, 0.4), 0),
-				clientScale
-			),
+			* CFrame.new(0, (-math.abs(self.spring.Value.x) * 0.5), 0)
+			* CFrame.Angles(0, smoothClamp(self.spring.Value.x * 1.2, -0.4, 0.4), 0),
 		viewmodel.weapon.Handle.CFrame,
-		CFrame.new():Lerp(
-			CFrame.Angles(
-				self.spring.Value.y - (math.abs(self.spring.Value.x) * 0.5),
-				0,
-				smoothClamp(-self.spring.Value.x, -0.3, 0.3)
-			),
-			clientScale
+		CFrame.Angles(
+			self.spring.Value.y - (math.abs(self.spring.Value.x) * 0.5),
+			0,
+			smoothClamp(-self.spring.Value.x, -0.3, 0.3)
 		)
 	)
 end

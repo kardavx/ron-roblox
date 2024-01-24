@@ -70,7 +70,7 @@ local function Router(props: UITypes.CommonProps)
 				}),
 
 				React.createElement(DialogDisplay, { common = commonProps }),
-				React.createElement(MagsDisplay, { common = commonProps }),
+				-- React.createElement(MagsDisplay, { common = commonProps }),
 				React.createElement(Status, { common = commonProps }),
 			}),
 

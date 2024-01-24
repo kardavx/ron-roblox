@@ -8,6 +8,7 @@ local Glock17Config = require(ReplicatedStorage.Shared.configurations.weapons.Gl
 local MK18Config = require(ReplicatedStorage.Shared.configurations.weapons.MK18Config)
 local MK18TacConfig = require(ReplicatedStorage.Shared.configurations.weapons.MK18TacConfig)
 local MP5A5Config = require(ReplicatedStorage.Shared.configurations.weapons.MP5A5Config)
+local USPConfig = require(ReplicatedStorage.Shared.configurations.weapons.USPConfig)
 local ClientPlayerData = require(ReplicatedStorage.Shared.module.ClientPlayerData)
 local SignalBag = require(ReplicatedStorage.Shared.module.SignalBag)
 local GameTypes = require(ReplicatedStorage.Shared.types.GameTypes)
@@ -165,7 +166,7 @@ function Loadout:ApplyLoadout(forced: boolean?)
 	self.weaponsJanitor:DoCleaning()
 	self.weapons = {
 		Primary = weapon.new(MK18Config),
-		Secondary = weapon.new(Glock17Config),
+		Secondary = weapon.new(USPConfig),
 	}
 
 	for _, singleWeapon in self.weapons do

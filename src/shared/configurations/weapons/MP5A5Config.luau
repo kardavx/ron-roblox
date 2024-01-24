@@ -2,6 +2,7 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local ClientGenericWeaponConfig = require(ReplicatedStorage.Shared.configurations.weapons.ClientGenericWeaponConfig)
 local WeaponConfigTypes = require(ReplicatedStorage.Shared.types.WeaponConfigTypes)
 
 local config: WeaponConfigTypes.Config = {
@@ -25,6 +26,22 @@ local config: WeaponConfigTypes.Config = {
 		LowReady = 15757539020,
 		Use = 15757536137,
 		Radio = 15823314705,
+	},
+	Sounds = {
+		AimUp = ClientGenericWeaponConfig.genericSounds.AimUp,
+		AimDown = ClientGenericWeaponConfig.genericSounds.AimDown,
+		Click = ClientGenericWeaponConfig.genericSounds.Click,
+		Equip = ClientGenericWeaponConfig.genericSounds.Equip,
+		MagDrop = ClientGenericWeaponConfig.genericSounds.MagDrop,
+		MagGrab = ClientGenericWeaponConfig.genericSounds.MagGrab,
+		MagIn = ClientGenericWeaponConfig.genericSounds.MagIn,
+		MagOut = ClientGenericWeaponConfig.genericSounds.MagOut,
+		MagPouchIn = ClientGenericWeaponConfig.genericSounds.MagPouchIn,
+		MagPouchOut = ClientGenericWeaponConfig.genericSounds.MagPouchOut,
+		SlidePull = ClientGenericWeaponConfig.genericSounds.SlidePull,
+		SlideRelease = ClientGenericWeaponConfig.genericSounds.SlideRelease,
+		Movement1 = ClientGenericWeaponConfig.genericSounds.Movement1,
+		Movement2 = ClientGenericWeaponConfig.genericSounds.Movement2,
 	},
 	ReloadLength = 4.25,
 	RecoilPunch = 0.3,

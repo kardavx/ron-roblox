@@ -9,4 +9,7 @@ return {
 		{ id = 15823391443, dialogId = "TOC_PREFIX_02" },
 		{ id = 15823391623, dialogId = "TOC_PREFIX_03" },
 	},
+	Acknowledge = {
+		{ id = 16095081043, dialogId = "TOC_ACKNOWLEDGE_01" },
+	},
 } :: { [string]: { { id: number, dialogId: string } } }
