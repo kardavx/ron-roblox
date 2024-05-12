@@ -9,7 +9,7 @@
 
 vsc extensions
 ```bash
-Luau LSP (Nie roblox-lsp)
+Luau LSP (not roblox-lsp)
 Rojo
 Selene
 Stylua
