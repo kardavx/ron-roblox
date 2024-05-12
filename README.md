@@ -1,5 +1,8 @@
 # ron
 
+## Info
+For more info refer to the description
+
 ## Prequistes
 - The most recent place
 - Aftman
